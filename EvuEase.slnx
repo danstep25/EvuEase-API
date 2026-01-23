@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="EvuEase.Api/EvuEase.Api.csproj" Id="98829b18-d277-4f14-841d-500a8ab982de" />
+  <Project Path="EvuEase.Application/EvuEase.Application.csproj" />
+  <Project Path="EvuEase.Domain/EvuEase.Domain.csproj" />
+  <Project Path="EvuEase.Infrastructure/EvuEase.Infrastructure.csproj" />
+</Solution>
+

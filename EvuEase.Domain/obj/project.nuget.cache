@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "KCh0mz1ZKQg=",
+  "success": true,
+  "projectFilePath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\valer\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.1\\microsoft.extensions.dependencyinjection.abstractions.10.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
