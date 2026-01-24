@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {}
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
+        "projectUniqueName": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
         "projectName": "EvuEase.Domain",
-        "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
+        "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
         "packagesPath": "C:\\Users\\valer\\.nuget\\packages\\",
-        "outputPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\obj\\",
+        "outputPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

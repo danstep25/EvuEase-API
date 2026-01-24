@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WOkqqOE0mLw=",
+  "dgSpecHash": "xqmoxMPNL3I=",
   "success": true,
-  "projectFilePath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
+  "projectFilePath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.0\\microsoft.entityframeworkcore.10.0.0.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.0\\microsoft.entityframeworkcore.abstractions.10.0.0.nupkg.sha512",

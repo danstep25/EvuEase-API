@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yCXvKd02wys=",
+  "dgSpecHash": "KpLha+gYMrA=",
   "success": true,
-  "projectFilePath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
+  "projectFilePath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.1\\microsoft.aspnetcore.openapi.10.0.1.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.0\\microsoft.entityframeworkcore.10.0.0.nupkg.sha512",

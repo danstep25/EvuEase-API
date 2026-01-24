@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj": {}
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj": {}
   },
   "projects": {
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj": {
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
+        "projectUniqueName": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
         "projectName": "EvuEase.Api",
-        "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
+        "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\EvuEase.Api.csproj",
         "packagesPath": "C:\\Users\\valer\\.nuget\\packages\\",
-        "outputPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Api\\obj\\",
+        "outputPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
-                "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj"
+              "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
+                "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj"
               },
-              "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj": {
-                "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj"
+              "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj": {
+                "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj"
               }
             }
           }
@@ -503,14 +503,14 @@
         }
       }
     },
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj",
+        "projectUniqueName": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj",
         "projectName": "EvuEase.Application",
-        "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj",
+        "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj",
         "packagesPath": "C:\\Users\\valer\\.nuget\\packages\\",
-        "outputPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\obj\\",
+        "outputPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -531,8 +531,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
-                "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj"
+              "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
+                "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj"
               }
             }
           }
@@ -846,14 +846,14 @@
         }
       }
     },
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
+        "projectUniqueName": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
         "projectName": "EvuEase.Domain",
-        "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
+        "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj",
         "packagesPath": "C:\\Users\\valer\\.nuget\\packages\\",
-        "outputPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\obj\\",
+        "outputPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1191,14 +1191,14 @@
         }
       }
     },
-    "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj": {
+    "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
         "projectName": "EvuEase.Infrastructure",
-        "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
+        "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\valer\\.nuget\\packages\\",
-        "outputPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Infrastructure\\obj\\",
+        "outputPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1219,11 +1219,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
-                "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj"
+              "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj": {
+                "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Application\\EvuEase.Application.csproj"
               },
-              "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
-                "projectPath": "C:\\Client\\EvuEase\\API\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj"
+              "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj": {
+                "projectPath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Domain\\EvuEase.Domain.csproj"
               }
             }
           }
