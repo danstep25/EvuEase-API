@@ -1,24 +1,29 @@
-using Microsoft.AspNetCore.Mvc;
 using EvuEase.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
-namespace EvuEase.API.Controller
+namespace EvuEase.API.Controller;
+
+[Route("api/[controller]")]
+public class UserController : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        private readonly IUserService _userService;
+        _userService = userService;
+    }
 
-        public UserController(IUserService userService)
-        {
-            _userService = userService;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<string>>> Get()
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        try
         {
             var data = await _userService.AllUsers();
             return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while retrieving users.", ex.Message);
         }
     }
 }

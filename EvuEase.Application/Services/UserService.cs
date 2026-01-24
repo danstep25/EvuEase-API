@@ -15,7 +15,7 @@ namespace EvuEase.Application.Services
         public async Task<List<string>> AllUsers()
         {
             var users = await _userRepository.GetAllUsers();
-            return users.Select(u => u.username).ToList();
+            return users.Select(u => u.name).ToList();
         }
     }
 }
