@@ -1,4 +1,5 @@
 using EvuEase.Application.DTOs;
+using EvuEase.Application.DTOs.User;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Application.Interfaces.Services;
 using EvuEase.Domain.Entities;

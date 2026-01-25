@@ -1,3 +1,4 @@
+using EvuEase.Application.DTOs.User;
 using EvuEase.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,11 +15,11 @@ public class UserController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get([FromQuery] UserRequest userRequest)
     {
         try
         {
-            var data = await _userService.AllUsers();
+            var data = await _userService.AllUsers(userRequest);
             return Ok(data);
         }
         catch (Exception ex)

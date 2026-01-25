@@ -1,4 +1,5 @@
 using EvuEase.Application.DTOs;
+using EvuEase.Application.DTOs.User;
 
 namespace EvuEase.Application.Interfaces.Services;
 

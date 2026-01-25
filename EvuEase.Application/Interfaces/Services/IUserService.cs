@@ -1,8 +1,10 @@
-namespace EvuEase.Application.Interfaces.Services
+using EvuEase.Application.Common;
+using EvuEase.Application.DTOs.User;
+
+namespace EvuEase.Application.Interfaces.Services;
+
+public interface IUserService
 {
-    public interface IUserService
-    {
-        Task<List<String>> AllUsers();
-    }
+    Task<PagedResults<UserResponse>> AllUsers(UserRequest userRequest);
 }
 

@@ -1,4 +1,4 @@
-namespace EvuEase.Application.DTOs;
+namespace EvuEase.Application.DTOs.User;
 
 public class UserResponse
 {

@@ -129,4 +129,7 @@ C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\EvuEase.Api.genrunti
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\ref\EvuEase.Api.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\BCrypt.Net-Next.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\System.Linq.Dynamic.Core.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\AutoMapper.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
