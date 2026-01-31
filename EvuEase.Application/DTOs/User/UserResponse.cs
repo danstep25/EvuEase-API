@@ -8,5 +8,6 @@ public class UserResponse
     public string Role { get; set; } = string.Empty;
     public DateTime? EmailVerifiedAt { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public int Status { get; set; }
 }
 

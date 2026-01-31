@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<Session> Sessions { get; set; }
+    public DbSet<SystemLog> SystemLogs { get; set; }
     
     // Domain tables
     public DbSet<ClassRoster> ClassRosters { get; set; }

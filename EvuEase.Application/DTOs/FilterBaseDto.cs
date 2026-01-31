@@ -6,5 +6,6 @@
         public int PageSize { get; set; } = 10;
         public string? SortDirection { get; set; } = "desc";
         public string? SortKey { get; set; } = string.Empty;
+        public string? SearchTerm { get; set; }
     }
 }

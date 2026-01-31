@@ -57,7 +57,7 @@ public class AuthController : BaseController
     {
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out var userId))
             {
                 return Unauthorized("Invalid token.");

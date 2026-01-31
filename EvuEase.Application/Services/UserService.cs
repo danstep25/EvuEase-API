@@ -23,4 +23,42 @@ public class UserService : IUserService
         var pagedEntities = await _userRepository.GetAllUsers(userRequest);
         return pagedEntities.MapToDto<User, UserResponse>(_mapper);
     }
+
+    public async Task<string> CreateUserAsync(CreateUserRequest userRequest)
+    {
+        var user = User.Create(
+            userRequest.FullName,
+            userRequest.Email,
+            userRequest.Password.Hash(),
+            userRequest.Role,
+            userRequest.Status
+            );
+        var result = await _userRepository.CreateUserAsync(user);
+        return result.email;
+    }
+
+    public async Task<string> UpdateUserAsync(UpdateUserRequest userRequest)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userRequest.Id);
+
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        user.Update(
+            userRequest.FullName,
+            userRequest.Email,
+            userRequest.Role,
+            userRequest.Status
+            );
+        
+        var result = await _userRepository.UpdateUserAsync(user);
+        return result.email;
+    }
+
+    public async Task<UserStatisticsResponse> GetStatisticsAsync()
+    {
+        return await _userRepository.GetStatisticsAsync();
+    }
 }
