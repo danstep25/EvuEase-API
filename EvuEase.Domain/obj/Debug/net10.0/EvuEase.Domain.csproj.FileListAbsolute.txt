@@ -11,3 +11,16 @@ C:\Client\EvuEase\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.dll
 C:\Client\EvuEase\EvuEase.Domain\obj\Debug\net10.0\refint\EvuEase.Domain.dll
 C:\Client\EvuEase\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.pdb
 C:\Client\EvuEase\EvuEase.Domain\obj\Debug\net10.0\ref\EvuEase.Domain.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\bin\Debug\net10.0\EvuEase.Domain.deps.json
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\bin\Debug\net10.0\EvuEase.Domain.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\bin\Debug\net10.0\EvuEase.Domain.pdb
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.csproj.AssemblyReference.cache
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.AssemblyInfoInputs.cache
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.AssemblyInfo.cs
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.csproj.CoreCompileInputs.cache
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.sourcelink.json
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\refint\EvuEase.Domain.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\EvuEase.Domain.pdb
+C:\Client\EvuEase\EvuEase-API\EvuEase.Domain\obj\Debug\net10.0\ref\EvuEase.Domain.dll

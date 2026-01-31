@@ -6,10 +6,11 @@ namespace EvuEase.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructures(this IServiceCollection services)
         {
             //Repository
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ISystemLogRepository, SystemLogRepository>();
     
             return services;
         }
