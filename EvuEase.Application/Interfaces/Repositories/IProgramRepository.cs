@@ -11,6 +11,7 @@ public interface IProgramRepository
     Task<Program?> GetProgramByCodeAsync(string programCode);
     Task<Program> CreateProgramAsync(Program program);
     Task<Program> UpdateProgramAsync(Program program);
+    Task DeleteProgramAsync(Program program);
     Task<bool> ProgramCodeExistsAsync(string programCode, long? excludeProgramId = null);
 }
 

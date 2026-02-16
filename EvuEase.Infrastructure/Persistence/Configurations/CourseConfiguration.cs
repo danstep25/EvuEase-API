@@ -21,6 +21,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(c => c.course_yearlevel).HasColumnName("course_yearlevel").HasMaxLength(20).IsRequired();
         builder.Property(c => c.course_semester).HasColumnName("course_semester").HasMaxLength(20).IsRequired();
         builder.Property(c => c.course_has_prerequities).HasColumnName("course_has_prerequities").IsRequired().HasDefaultValue(0);
+        builder.Property(c => c.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(c => c.created_at).HasColumnName("created_at");
         builder.Property(c => c.updated_at).HasColumnName("updated_at");
     }

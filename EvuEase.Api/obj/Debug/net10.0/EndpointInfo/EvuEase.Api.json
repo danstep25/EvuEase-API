@@ -464,6 +464,222 @@
         }
       }
     },
+    "/api/SyTerm": {
+      "get": {
+        "tags": [
+          "SyTerm"
+        ],
+        "parameters": [
+          {
+            "name": "SyCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SyYear",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Semester",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchTerm",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SyTerm/{id}": {
+      "get": {
+        "tags": [
+          "SyTerm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SyTerm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSyTermRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSyTermRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSyTermRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SyTerm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SyTerm/new": {
+      "post": {
+        "tags": [
+          "SyTerm"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSyTermRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSyTermRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSyTermRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/User": {
       "get": {
         "tags": [
@@ -683,6 +899,39 @@
           }
         }
       },
+      "CreateSyTermRequest": {
+        "type": "object",
+        "properties": {
+          "syCode": {
+            "type": "string"
+          },
+          "syYear": {
+            "type": "string"
+          },
+          "sySemester": {
+            "type": "string"
+          },
+          "syStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEnrollmentStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEnrollmentEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "syStatus": {
+            "type": "string"
+          }
+        }
+      },
       "CreateUserRequest": {
         "type": "object",
         "properties": {
@@ -776,6 +1025,47 @@
           }
         }
       },
+      "UpdateSyTermRequest": {
+        "type": "object",
+        "properties": {
+          "syId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "syCode": {
+            "type": "string"
+          },
+          "syYear": {
+            "type": "string"
+          },
+          "sySemester": {
+            "type": "string"
+          },
+          "syStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEnrollmentStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "syEnrollmentEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "syStatus": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateUserRequest": {
         "type": "object",
         "properties": {
@@ -818,6 +1108,9 @@
     },
     {
       "name": "SystemLog"
+    },
+    {
+      "name": "SyTerm"
     },
     {
       "name": "User"

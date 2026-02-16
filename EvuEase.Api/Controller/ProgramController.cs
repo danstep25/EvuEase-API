@@ -96,8 +96,8 @@ public class ProgramController : BaseController
     {
         try
         {
-            var result = await _programService.DeleteProgramAsync(id);
-            return Ok(result);
+            await _programService.DeleteProgramAsync(id);
+            return NoContent();
         }
         catch (KeyNotFoundException ex)
         {

@@ -77,17 +77,14 @@ public class ProgramService : IProgramService
         return result.program_code;
     }
 
-    public async Task<bool> DeleteProgramAsync(long id)
+    public async Task DeleteProgramAsync(long id)
     {
         var program = await _programRepository.GetProgramByIdAsync(id);
         if (program == null)
         {
             throw new KeyNotFoundException($"Program with ID {id} not found.");
         }
-
-        // Note: Actual deletion would require a DeleteAsync method in repository
-        // For now, we'll just return true if program exists
-        return true;
+        await _programRepository.DeleteProgramAsync(program);
     }
 }
 

@@ -12,6 +12,7 @@ public class CurriculaConfiguration : IEntityTypeConfiguration<Curricula>
 
         builder.HasKey(c => c.id);
         builder.Property(c => c.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(c => c.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(c => c.created_at).HasColumnName("created_at");
         builder.Property(c => c.updated_at).HasColumnName("updated_at");
     }

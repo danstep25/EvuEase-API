@@ -12,6 +12,7 @@ public class TuitionFeeConfiguration : IEntityTypeConfiguration<TuitionFee>
 
         builder.HasKey(tf => tf.id);
         builder.Property(tf => tf.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(tf => tf.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(tf => tf.created_at).HasColumnName("created_at");
         builder.Property(tf => tf.updated_at).HasColumnName("updated_at");
     }

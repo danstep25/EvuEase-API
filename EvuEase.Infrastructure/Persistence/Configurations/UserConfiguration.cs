@@ -22,7 +22,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.created_at).HasColumnName("created_at");
         builder.Property(u => u.updated_at).HasColumnName("updated_at");
         builder.Property(u => u.role).HasColumnName("role").HasMaxLength(255).IsRequired().HasDefaultValue("evaluator");
-        builder.Property(u => u.status).HasColumnName("status").HasMaxLength(10).IsRequired().HasDefaultValue(Status.ACTIVE);
+        builder.Property(u => u.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
     }
 }
 

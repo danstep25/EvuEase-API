@@ -18,7 +18,15 @@ namespace EvuEase.Infrastructure.Repositories
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        protected IQueryable<T> GetAll() => dbContext.Set<T>().AsQueryable();
+        protected IQueryable<T> GetAll(bool includeDeleted = false)
+        {
+            var query = dbContext.Set<T>().AsQueryable();
+            if (!includeDeleted && typeof(BaseEntity).IsAssignableFrom(typeof(T)))
+            {
+                query = query.Where(e => ((BaseEntity)(object)e!).status == true);
+            }
+            return query;
+        }
 
         protected async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
@@ -32,6 +40,12 @@ namespace EvuEase.Infrastructure.Repositories
 
         protected async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
+            if (entity is BaseEntity baseEntity)
+            {
+                var type = typeof(BaseEntity);
+                type.GetProperty(nameof(BaseEntity.status))?.SetValue(baseEntity, true);
+                type.GetProperty(nameof(BaseEntity.created_at))?.SetValue(baseEntity, DateTime.Now);
+            }
             await dbContext.Set<T>().AddAsync(entity, cancellationToken);
             var moduleDescription = GetModuleDescription(typeof(T).Name);
             await AuditAsync("create", moduleDescription, $"Created {typeof(T).Name} entity", cancellationToken);
@@ -40,6 +54,11 @@ namespace EvuEase.Infrastructure.Repositories
 
         protected async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
+            if (entity is BaseEntity baseEntity)
+            {
+                var type = typeof(BaseEntity);
+                type.GetProperty(nameof(BaseEntity.updated_at))?.SetValue(baseEntity, DateTime.Now);
+            }
             dbContext.Set<T>().Update(entity);
             var moduleDescription = GetModuleDescription(typeof(T).Name);
             await AuditAsync("update", moduleDescription, $"Updated {typeof(T).Name} entity", cancellationToken);
@@ -50,6 +69,24 @@ namespace EvuEase.Infrastructure.Repositories
             dbContext.Set<T>().Remove(entity);
             var moduleDescription = GetModuleDescription(typeof(T).Name);
             await AuditAsync("delete", moduleDescription, $"Deleted {typeof(T).Name} entity", cancellationToken);
+        }
+
+        protected async Task SoftDeleteAsync(T entity, CancellationToken cancellationToken = default)
+        {
+            if (entity is BaseEntity baseEntity)
+            {
+                var type = typeof(BaseEntity);
+                type.GetProperty(nameof(BaseEntity.status))?.SetValue(baseEntity, false);
+                type.GetProperty(nameof(BaseEntity.updated_at))?.SetValue(baseEntity, DateTime.Now);
+                
+                dbContext.Set<T>().Update(entity);
+                var moduleDescription = GetModuleDescription(typeof(T).Name);
+                await AuditAsync("delete", moduleDescription, $"Soft deleted {typeof(T).Name} entity", cancellationToken);
+            }
+            else
+            {
+                await DeleteAsync(entity, cancellationToken);
+            }
         }
 
         protected async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

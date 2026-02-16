@@ -12,6 +12,7 @@ public class DpPercentageConfiguration : IEntityTypeConfiguration<DpPercentage>
 
         builder.HasKey(dpp => dpp.id);
         builder.Property(dpp => dpp.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(dpp => dpp.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(dpp => dpp.created_at).HasColumnName("created_at");
         builder.Property(dpp => dpp.updated_at).HasColumnName("updated_at");
     }

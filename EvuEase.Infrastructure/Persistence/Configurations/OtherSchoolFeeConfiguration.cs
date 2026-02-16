@@ -12,6 +12,7 @@ public class OtherSchoolFeeConfiguration : IEntityTypeConfiguration<OtherSchoolF
 
         builder.HasKey(osf => osf.id);
         builder.Property(osf => osf.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(osf => osf.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(osf => osf.created_at).HasColumnName("created_at");
         builder.Property(osf => osf.updated_at).HasColumnName("updated_at");
     }

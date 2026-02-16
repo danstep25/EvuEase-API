@@ -17,6 +17,7 @@ public class ProgramConfiguration : IEntityTypeConfiguration<Program>
         builder.Property(p => p.program_completionyears).HasColumnName("program_completionyears").IsRequired();
         builder.Property(p => p.program_totalunits).HasColumnName("program_totalunits");
         builder.Property(p => p.program_status).HasColumnName("program_status").HasMaxLength(50).IsRequired().HasDefaultValue("active");
+        builder.Property(p => p.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(p => p.created_at).HasColumnName("created_at");
         builder.Property(p => p.updated_at).HasColumnName("updated_at");
     }

@@ -86,6 +86,12 @@ public class ProgramRepository : BaseRepository<Program>, IProgramRepository
 
         return await query.AnyAsync();
     }
+
+    public async Task DeleteProgramAsync(Program program)
+    {
+        await SoftDeleteAsync(program);
+        await SaveChangesAsync();
+    }
 }
 
 

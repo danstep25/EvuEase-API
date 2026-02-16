@@ -9,7 +9,7 @@ public interface IProgramService
     Task<ProgramResponse?> GetProgramByIdAsync(long id);
     Task<string> CreateProgramAsync(CreateProgramRequest programRequest);
     Task<string> UpdateProgramAsync(UpdateProgramRequest programRequest);
-    Task<bool> DeleteProgramAsync(long id);
+    Task DeleteProgramAsync(long id);
 }
 
 

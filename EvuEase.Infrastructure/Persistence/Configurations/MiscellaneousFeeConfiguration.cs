@@ -12,6 +12,7 @@ public class MiscellaneousFeeConfiguration : IEntityTypeConfiguration<Miscellane
 
         builder.HasKey(mf => mf.id);
         builder.Property(mf => mf.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(mf => mf.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(mf => mf.created_at).HasColumnName("created_at");
         builder.Property(mf => mf.updated_at).HasColumnName("updated_at");
     }

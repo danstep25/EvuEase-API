@@ -20,6 +20,7 @@ public class SyTermConfiguration : IEntityTypeConfiguration<SyTerm>
         builder.Property(st => st.sy_enrollmentstart).HasColumnName("sy_enrollmentstart").IsRequired();
         builder.Property(st => st.sy_enrollmentend).HasColumnName("sy_enrollmentend").IsRequired();
         builder.Property(st => st.sy_status).HasColumnName("sy_status").HasMaxLength(10).IsRequired().HasDefaultValue("Inactive");
+        builder.Property(st => st.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(st => st.created_at).HasColumnName("created_at");
         builder.Property(st => st.updated_at).HasColumnName("updated_at");
     }

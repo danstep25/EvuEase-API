@@ -77,7 +77,7 @@ public class SyTermRepository : BaseRepository<SyTerm>, ISyTermRepository
 
     public async Task DeleteSyTermAsync(SyTerm syTerm)
     {
-        await DeleteAsync(syTerm);
+        await SoftDeleteAsync(syTerm);
         await SaveChangesAsync();
     }
 }
