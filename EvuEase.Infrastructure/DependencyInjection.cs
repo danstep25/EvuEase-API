@@ -11,6 +11,8 @@ namespace EvuEase.Infrastructure
             //Repository
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISystemLogRepository, SystemLogRepository>();
+            services.AddScoped<IProgramRepository, ProgramRepository>();
+            services.AddScoped<ISyTermRepository, SyTermRepository>();
     
             return services;
         }
