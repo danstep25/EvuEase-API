@@ -91,6 +91,43 @@ BEGIN
 END
 GO
 
+-- Add new columns to tbl_curricula for curriculum management
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'curriculum_code')
+BEGIN
+    ALTER TABLE tbl_curricula ADD curriculum_code NVARCHAR(50) NOT NULL DEFAULT '';
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'version')
+BEGIN
+    ALTER TABLE tbl_curricula ADD version NVARCHAR(50) NOT NULL DEFAULT '';
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'program_id')
+BEGIN
+    ALTER TABLE tbl_curricula ADD program_id BIGINT NOT NULL DEFAULT 0;
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'sy_id')
+BEGIN
+    ALTER TABLE tbl_curricula ADD sy_id BIGINT NOT NULL DEFAULT 0;
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'effective_date')
+BEGIN
+    ALTER TABLE tbl_curricula ADD effective_date DATE NOT NULL DEFAULT GETDATE();
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('tbl_curricula') AND name = 'curriculum_status')
+BEGIN
+    ALTER TABLE tbl_curricula ADD curriculum_status NVARCHAR(50) NOT NULL DEFAULT 'Inactive';
+END
+GO
+
 -- Update existing records to have status = 1 (active) by default
 UPDATE tbl_program SET status = 1 WHERE status IS NULL;
 UPDATE tbl_sy_term SET status = 1 WHERE status IS NULL;

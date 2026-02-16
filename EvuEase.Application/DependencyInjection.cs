@@ -10,7 +10,7 @@ public static class DependencyInjection
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         // AutoMapper
-        services.AddAutoMapper(typeof(UserMappingProfile), typeof(SystemLogMappingProfile), typeof(ProgramMappingProfile), typeof(SyTermMappingProfile));
+        services.AddAutoMapper(typeof(UserMappingProfile), typeof(SystemLogMappingProfile), typeof(ProgramMappingProfile), typeof(SyTermMappingProfile), typeof(CurriculaMappingProfile));
 
         //Services
         services.AddScoped<IUserService, UserService>();
@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<ILookupService, LookupService>();
         services.AddScoped<IProgramService, ProgramService>();
         services.AddScoped<ISyTermService, SyTermService>();
+        services.AddScoped<ICurriculaService, CurriculaService>();
 
         return services;
     }

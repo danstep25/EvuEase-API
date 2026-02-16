@@ -13,6 +13,7 @@ namespace EvuEase.Infrastructure
             services.AddScoped<ISystemLogRepository, SystemLogRepository>();
             services.AddScoped<IProgramRepository, ProgramRepository>();
             services.AddScoped<ISyTermRepository, SyTermRepository>();
+            services.AddScoped<ICurriculaRepository, CurriculaRepository>();
     
             return services;
         }
