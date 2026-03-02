@@ -1,4 +1,5 @@
 using EvuEase.Application.Common;
+using EvuEase.Application.DTOs;
 using EvuEase.Application.DTOs.Program;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Domain.Entities;
@@ -18,7 +19,6 @@ public class ProgramRepository : BaseRepository<Program>, IProgramRepository
     {
         var query = GetAll();
 
-        // Apply search filter
         if (!string.IsNullOrWhiteSpace(programRequest.SearchTerm))
         {
             var searchTerm = programRequest.SearchTerm.ToLower();
@@ -91,6 +91,19 @@ public class ProgramRepository : BaseRepository<Program>, IProgramRepository
     {
         await SoftDeleteAsync(program);
         await SaveChangesAsync();
+    }
+
+    public async Task<List<LookupItem>> GetLookupItemsAsync()
+    {
+        return await GetAll()
+            .Select(p => new LookupItem
+            {
+                Id = p.program_id,
+                Value = p.program_code,
+                DisplayText = $"{p.program_code} - {p.program_title}"
+            })
+            .OrderBy(p => p.Value)
+            .ToListAsync();
     }
 }
 

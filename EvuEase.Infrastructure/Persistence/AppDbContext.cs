@@ -8,7 +8,6 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
-    // System tables
     public DbSet<Cache> Cache { get; set; }
     public DbSet<CacheLock> CacheLocks { get; set; }
     public DbSet<FailedJob> FailedJobs { get; set; }
@@ -19,7 +18,6 @@ public class AppDbContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<SystemLog> SystemLogs { get; set; }
     
-    // Domain tables
     public DbSet<ClassRoster> ClassRosters { get; set; }
     public DbSet<Curricula> Curricula { get; set; }
     public DbSet<DpPercentage> DpPercentages { get; set; }
@@ -29,12 +27,10 @@ public class AppDbContext : DbContext
     public DbSet<Student> Students { get; set; }
     public DbSet<TuitionFee> TuitionFees { get; set; }
     
-    // Academic tables
     public DbSet<Program> Programs { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<SyTerm> SyTerms { get; set; }
     
-    // User table
     public DbSet<User> Users { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

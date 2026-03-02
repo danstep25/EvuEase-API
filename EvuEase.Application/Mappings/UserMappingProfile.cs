@@ -17,17 +17,16 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.created_at))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status ? 1 : 0));
 
-        // Reverse mapping (if needed for updates)
         CreateMap<UserResponse, User>()
-            .ForMember(dest => dest.id, opt => opt.Ignore()) // ID should not be mapped from DTO
-            .ForMember(dest => dest.password, opt => opt.Ignore()) // Password should not be mapped
+            .ForMember(dest => dest.id, opt => opt.Ignore())
+            .ForMember(dest => dest.password, opt => opt.Ignore())
             .ForMember(dest => dest.remember_token, opt => opt.Ignore())
             .ForMember(dest => dest.updated_at, opt => opt.Ignore())
             .ForMember(dest => dest.created_at, opt => opt.Ignore());
 
         CreateMap<CreateUserRequest, User>()
-            .ForMember(dest => dest.id, opt => opt.Ignore()) // ID should not be mapped from DTO
-            .ForMember(dest => dest.password, opt => opt.Ignore()) // Password should not be mapped
+            .ForMember(dest => dest.id, opt => opt.Ignore())
+            .ForMember(dest => dest.password, opt => opt.Ignore())
             .ForMember(dest => dest.remember_token, opt => opt.Ignore())
             .ForMember(dest => dest.updated_at, opt => opt.Ignore())
             .ForMember(dest => dest.status, opt => opt.Ignore())

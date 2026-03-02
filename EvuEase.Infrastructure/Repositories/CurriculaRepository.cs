@@ -1,4 +1,5 @@
 using EvuEase.Application.Common;
+using EvuEase.Application.DTOs;
 using EvuEase.Application.DTOs.Curricula;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Domain.Entities;
@@ -65,6 +66,11 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
         return await GetAll().FirstOrDefaultAsync(c => c.id == id);
     }
 
+    public async Task<Curricula?> GetCurriculaByCodeAsync(string curriculumCode)
+    {
+        return await GetAll().FirstOrDefaultAsync(c => c.curriculum_code == curriculumCode);
+    }
+
     public async Task<Curricula> CreateCurriculaAsync(Curricula curricula)
     {
         await AddAsync(curricula);
@@ -83,6 +89,45 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
     {
         await SoftDeleteAsync(curricula);
         await SaveChangesAsync();
+    }
+
+    public async Task<List<LookupItem>> GetLookupItemsAsync(long? programId = null)
+    {
+        var query = GetAll();
+
+        if (programId.HasValue)
+        {
+            query = query.Where(c => c.program_id == programId.Value);
+        }
+
+        return await query
+            .Select(c => new LookupItem
+            {
+                Id = c.id,
+                Value = c.curriculum_code,
+                DisplayText = $"{c.curriculum_code} - {c.version}"
+            })
+            .OrderBy(c => c.Value)
+            .ToListAsync();
+    }
+
+    public async Task<List<LookupItem>> GetCurriculumVersionsByProgramCodeAsync(string programCode)
+    {
+        if (string.IsNullOrWhiteSpace(programCode))
+        {
+            return new List<LookupItem>();
+        }
+
+        return await GetAll()
+            .Where(c => c.curriculum_code.StartsWith(programCode + "-"))
+            .Select(c => new LookupItem
+            {
+                Id = c.id,
+                Value = c.version,
+                DisplayText = $"{c.curriculum_code} - {c.version}"
+            })
+            .OrderByDescending(c => c.Value)
+            .ToListAsync();
     }
 }
 

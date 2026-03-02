@@ -12,12 +12,12 @@ public class Curricula : BaseEntity
 
     private Curricula() { }
 
-    public static Curricula Create(string curriculumCode, string version, long programId, long syId, DateOnly effectiveDate, string curriculumStatus = "Inactive")
+    public static Curricula Create(string programCode, string version, long programId, long syId, DateOnly effectiveDate, string curriculumStatus = "Inactive")
     {
         var curricula = new Curricula();
         var type = typeof(Curricula);
         
-        type.GetProperty(nameof(curriculum_code))?.SetValue(curricula, curriculumCode);
+        type.GetProperty(nameof(curriculum_code))?.SetValue(curricula, programCode + "-" + version);
         type.GetProperty(nameof(version))?.SetValue(curricula, version);
         type.GetProperty(nameof(program_id))?.SetValue(curricula, programId);
         type.GetProperty(nameof(sy_id))?.SetValue(curricula, syId);

@@ -1,4 +1,5 @@
 using EvuEase.Application.Common;
+using EvuEase.Application.DTOs;
 using EvuEase.Application.DTOs.SyTerm;
 using EvuEase.Domain.Entities;
 
@@ -11,5 +12,6 @@ public interface ISyTermRepository
     Task<SyTerm> CreateSyTermAsync(SyTerm syTerm);
     Task<SyTerm> UpdateSyTermAsync(SyTerm syTerm);
     Task DeleteSyTermAsync(SyTerm syTerm);
+    Task<List<LookupItem>> GetLookupItemsAsync();
 }
 

@@ -11,3 +11,5 @@ public class UpdateCurriculaRequest
     public string CurriculumStatus { get; set; } = string.Empty;
 }
 
+
+

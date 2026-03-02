@@ -9,10 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        // AutoMapper
         services.AddAutoMapper(typeof(UserMappingProfile), typeof(SystemLogMappingProfile), typeof(ProgramMappingProfile), typeof(SyTermMappingProfile), typeof(CurriculaMappingProfile));
-
-        //Services
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ISystemLogService, SystemLogService>();
@@ -20,6 +17,10 @@ public static class DependencyInjection
         services.AddScoped<IProgramService, ProgramService>();
         services.AddScoped<ISyTermService, SyTermService>();
         services.AddScoped<ICurriculaService, CurriculaService>();
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<ITuitionFeeService, TuitionFeeService>();
+        services.AddScoped<IOtherSchoolFeeService, OtherSchoolFeeService>();
+        services.AddScoped<IMiscellaneousFeeService, MiscellaneousFeeService>();
 
         return services;
     }

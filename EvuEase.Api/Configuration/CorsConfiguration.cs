@@ -28,7 +28,6 @@ public static class CorsConfiguration
                 }
                 else
                 {
-                    // Fallback: allow any origin (use only in development)
                     policy
                         .AllowAnyOrigin()
                         .AllowAnyMethod()

@@ -9,10 +9,8 @@ public class Program : BaseEntity
     public int? program_totalunits { get; private set; }
     public string program_status { get; private set; } = string.Empty;
 
-    // Private constructor for EF Core
     private Program() { }
 
-    // Factory method for creating new programs
     public static Program Create(string programCode, string programTitle, int completionYears, int? totalUnits = null, string status = "active")
     {
         var program = new Program();

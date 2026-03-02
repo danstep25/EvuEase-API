@@ -12,10 +12,8 @@ public class SyTerm : BaseEntity
     public DateOnly sy_enrollmentend { get; private set; }
     public string sy_status { get; private set; } = string.Empty;
 
-    // Private constructor for EF Core
     private SyTerm() { }
 
-    // Factory method for creating new school year terms
     public static SyTerm Create(string syCode, string syYear, string sySemester, DateOnly syStartDate, DateOnly syEndDate, DateOnly syEnrollmentStart, DateOnly syEnrollmentEnd, string syStatus = "Inactive")
     {
         var syTerm = new SyTerm();

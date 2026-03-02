@@ -12,3 +12,5 @@ public interface ICurriculaService
     Task DeleteCurriculaAsync(long id);
 }
 
+
+

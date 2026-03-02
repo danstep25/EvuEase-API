@@ -16,3 +16,5 @@ public class CurriculaResponse
     public DateTime? UpdatedAt { get; set; }
 }
 
+
+

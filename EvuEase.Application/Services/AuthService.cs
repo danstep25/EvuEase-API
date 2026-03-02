@@ -137,7 +137,6 @@ public class AuthService : IAuthService
         }
         catch
         {
-            // Handle legacy password hashes if needed
             return false;
         }
     }

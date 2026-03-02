@@ -1,4 +1,5 @@
 using EvuEase.Application.Common;
+using EvuEase.Application.DTOs;
 using EvuEase.Application.DTOs.SyTerm;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Domain.Entities;
@@ -79,6 +80,20 @@ public class SyTermRepository : BaseRepository<SyTerm>, ISyTermRepository
     {
         await SoftDeleteAsync(syTerm);
         await SaveChangesAsync();
+    }
+
+    public async Task<List<LookupItem>> GetLookupItemsAsync()
+    {
+        return await GetAll()
+            .OrderByDescending(s => s.sy_year)
+            .ThenByDescending(s => s.sy_semester)
+            .Select(s => new LookupItem
+            {
+                Id = s.sy_id,
+                Value = s.sy_code,
+                DisplayText = $"{s.sy_year} - {s.sy_semester}"
+            })
+            .ToListAsync();
     }
 }
 

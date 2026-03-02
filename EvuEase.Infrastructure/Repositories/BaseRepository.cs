@@ -139,15 +139,11 @@ namespace EvuEase.Infrastructure.Repositories
 
         private string GetModuleDescription(string entityTypeName)
         {
-            // Map entity type names to Module enum values
-            // If entity name matches a Module enum value, return its description
-            // Otherwise, return the entity type name as fallback
             if (Enum.TryParse<Module>(entityTypeName, true, out var module))
             {
                 return module.GetDescription();
             }
 
-            // Handle common mappings (e.g., "User" -> "UserManagement")
             var entityToModuleMap = new Dictionary<string, Module>(StringComparer.OrdinalIgnoreCase)
             {
                 { "User", Module.User }
@@ -158,7 +154,6 @@ namespace EvuEase.Infrastructure.Repositories
                 return mappedModule.GetDescription();
             }
 
-            // Fallback to entity type name if no mapping found
             return entityTypeName;
         }
 

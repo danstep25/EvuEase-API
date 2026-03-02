@@ -90,7 +90,7 @@ public class CurriculaService : ICurriculaService
     public async Task<CurriculaResponse> CreateCurriculaAsync(CreateCurriculaRequest curriculaRequest)
     {
         var curricula = Curricula.Create(
-            curriculaRequest.CurriculumCode,
+            curriculaRequest.ProgramCode,
             curriculaRequest.Version,
             curriculaRequest.ProgramId,
             curriculaRequest.SyId,

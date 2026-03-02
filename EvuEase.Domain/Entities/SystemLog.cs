@@ -11,10 +11,8 @@ public class SystemLog
     public string details { get; private set; } = string.Empty;
     public string? ip_address { get; private set; }
 
-    // Private constructor for EF Core
     private SystemLog() { }
 
-    // Factory method for creating new system logs
     public static SystemLog Create(
         string user, 
         string role, 

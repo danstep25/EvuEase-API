@@ -1,4 +1,5 @@
 using EvuEase.Application.Common;
+using EvuEase.Application.DTOs;
 using EvuEase.Application.DTOs.Program;
 using EvuEase.Domain.Entities;
 
@@ -13,6 +14,7 @@ public interface IProgramRepository
     Task<Program> UpdateProgramAsync(Program program);
     Task DeleteProgramAsync(Program program);
     Task<bool> ProgramCodeExistsAsync(string programCode, long? excludeProgramId = null);
+    Task<List<LookupItem>> GetLookupItemsAsync();
 }
 
 

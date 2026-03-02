@@ -11,3 +11,5 @@ public class CurriculaRequest : FilterBaseDto
     public string? Status { get; set; }
 }
 
+
+

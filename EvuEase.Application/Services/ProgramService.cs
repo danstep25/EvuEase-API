@@ -32,7 +32,6 @@ public class ProgramService : IProgramService
 
     public async Task<string> CreateProgramAsync(CreateProgramRequest programRequest)
     {
-        // Check if program code already exists
         if (await _programRepository.ProgramCodeExistsAsync(programRequest.ProgramCode))
         {
             throw new InvalidOperationException($"Program with code '{programRequest.ProgramCode}' already exists.");
@@ -59,7 +58,6 @@ public class ProgramService : IProgramService
             throw new KeyNotFoundException($"Program with ID {programRequest.ProgramId} not found.");
         }
 
-        // Check if program code already exists (excluding current program)
         if (await _programRepository.ProgramCodeExistsAsync(programRequest.ProgramCode, programRequest.ProgramId))
         {
             throw new InvalidOperationException($"Program with code '{programRequest.ProgramCode}' already exists.");
