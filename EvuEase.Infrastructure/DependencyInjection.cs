@@ -17,6 +17,7 @@ namespace EvuEase.Infrastructure
             services.AddScoped<ITuitionFeeRepository, TuitionFeeRepository>();
             services.AddScoped<IOtherSchoolFeeRepository, OtherSchoolFeeRepository>();
             services.AddScoped<IMiscellaneousFeeRepository, MiscellaneousFeeRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
     
             return services;
         }

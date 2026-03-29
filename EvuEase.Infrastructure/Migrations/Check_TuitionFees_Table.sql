@@ -165,3 +165,4 @@ WHERE TABLE_NAME = 'tbl_tuition_fees'
 ORDER BY ORDINAL_POSITION;
 
 
+

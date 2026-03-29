@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EvuEase.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b05b8b35fc0149ad3164029fcda526a7d4144182")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54cc34856941cdfc9890738c1fdc6f2a6c86554d")]
 [assembly: System.Reflection.AssemblyProductAttribute("EvuEase.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EvuEase.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
