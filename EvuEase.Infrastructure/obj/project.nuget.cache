@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "IGRWbaEN2fI=",
+  "dgSpecHash": "pRYuOYzt4H8=",
   "success": true,
   "projectFilePath": "C:\\Client\\EvuEase\\EvuEase-API\\EvuEase.Infrastructure\\EvuEase.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -37,6 +37,7 @@
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.identitymodel.protocols.openidconnect\\8.0.1\\microsoft.identitymodel.protocols.openidconnect.8.0.1.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.2.1\\microsoft.identitymodel.tokens.8.2.1.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
+    "C:\\Users\\valer\\.nuget\\packages\\pdfpig\\0.1.9\\pdfpig.0.1.9.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\system.clientmodel\\1.5.1\\system.clientmodel.1.5.1.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\system.configuration.configurationmanager\\9.0.4\\system.configuration.configurationmanager.9.0.4.nupkg.sha512",
     "C:\\Users\\valer\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.4\\system.diagnostics.eventlog.9.0.4.nupkg.sha512",

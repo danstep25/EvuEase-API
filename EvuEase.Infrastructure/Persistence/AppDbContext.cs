@@ -29,6 +29,10 @@ public class AppDbContext : DbContext
     
     public DbSet<Program> Programs { get; set; }
     public DbSet<Course> Courses { get; set; }
+    public DbSet<GradingSchemeBasis> GradingSchemeBases { get; set; }
+    public DbSet<GradeScaleRow> GradeScaleRows { get; set; }
+    public DbSet<FacultyClass> FacultyClasses { get; set; }
+    public DbSet<FacultyClassEnrollment> FacultyClassEnrollments { get; set; }
     public DbSet<SyTerm> SyTerms { get; set; }
     
     public DbSet<User> Users { get; set; }
@@ -38,6 +42,18 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clr = entityType.ClrType;
+            if (!typeof(BaseEntity).IsAssignableFrom(clr) || clr == typeof(BaseEntity) || entityType.IsOwned())
+            {
+                continue;
+            }
+
+            modelBuilder.Entity(clr).Property(nameof(BaseEntity.deleted_at)).HasColumnName("deleted_at");
+            modelBuilder.Entity(clr).Property(nameof(BaseEntity.deleted_by)).HasColumnName("deleted_by").HasMaxLength(255);
+        }
     }
 }
 

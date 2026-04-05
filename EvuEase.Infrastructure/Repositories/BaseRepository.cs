@@ -23,7 +23,10 @@ namespace EvuEase.Infrastructure.Repositories
             var query = dbContext.Set<T>().AsQueryable();
             if (!includeDeleted && typeof(BaseEntity).IsAssignableFrom(typeof(T)))
             {
-                query = query.Where(e => ((BaseEntity)(object)e!).status == true);
+                
+                query = query.Where(e =>
+                    ((BaseEntity)(object)e!).deleted_at == null &&
+                    ((BaseEntity)(object)e!).status);
             }
             return query;
         }
@@ -77,8 +80,10 @@ namespace EvuEase.Infrastructure.Repositories
             {
                 var type = typeof(BaseEntity);
                 type.GetProperty(nameof(BaseEntity.status))?.SetValue(baseEntity, false);
-                type.GetProperty(nameof(BaseEntity.updated_at))?.SetValue(baseEntity, DateTime.Now);
-                
+                type.GetProperty(nameof(BaseEntity.updated_at))?.SetValue(baseEntity, DateTime.UtcNow);
+                type.GetProperty(nameof(BaseEntity.deleted_at))?.SetValue(baseEntity, DateTime.UtcNow);
+                type.GetProperty(nameof(BaseEntity.deleted_by))?.SetValue(baseEntity, GetCurrentUserIdClaim());
+
                 dbContext.Set<T>().Update(entity);
                 var moduleDescription = GetModuleDescription(typeof(T).Name);
                 await AuditAsync("delete", moduleDescription, $"Soft deleted {typeof(T).Name} entity", cancellationToken);
@@ -87,6 +92,21 @@ namespace EvuEase.Infrastructure.Repositories
             {
                 await DeleteAsync(entity, cancellationToken);
             }
+        }
+
+        private string? GetCurrentUserIdClaim()
+        {
+            var user = httpContextAccessor?.HttpContext?.User;
+            if (user?.Identity is not { IsAuthenticated: true })
+            {
+                return null;
+            }
+
+            return user.FindFirst("UserId")?.Value
+                ?? user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? user.FindFirst("sub")?.Value
+                ?? user.FindFirst("Email")?.Value
+                ?? user.FindFirst("UserName")?.Value;
         }
 
         protected async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -129,5 +129,18 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
             .OrderByDescending(c => c.Value)
             .ToListAsync();
     }
+
+    public async Task SoftDeleteAllForProgramAsync(long programId, CancellationToken cancellationToken = default)
+    {
+        var list = await GetAll()
+            .Where(c => c.program_id == programId)
+            .ToListAsync(cancellationToken);
+        foreach (var row in list)
+        {
+            await SoftDeleteAsync(row, cancellationToken);
+        }
+
+        await SaveChangesAsync(cancellationToken);
+    }
 }
 

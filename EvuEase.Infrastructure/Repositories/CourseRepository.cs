@@ -107,10 +107,23 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
             {
                 Id = 0,
                 Value = c.course_code,
-                DisplayText = c.course_code
+                DisplayText = c.course_code + " - " + c.course_title
             })
             .OrderBy(c => c.Value)
             .ToListAsync();
+    }
+
+    public async Task SoftDeleteAllForProgramAsync(long programId, CancellationToken cancellationToken = default)
+    {
+        var list = await GetAll()
+            .Where(c => c.program_id == programId)
+            .ToListAsync(cancellationToken);
+        foreach (var course in list)
+        {
+            await SoftDeleteAsync(course, cancellationToken);
+        }
+
+        await SaveChangesAsync(cancellationToken);
     }
 }
 

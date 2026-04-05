@@ -1,4 +1,5 @@
 using EvuEase.Application.DTOs;
+using EvuEase.Application.DTOs.GradeRoster;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Application.Interfaces.Services;
 using EvuEase.Domain.Enums;
@@ -11,17 +12,20 @@ public class LookupService : ILookupService
     private readonly ISyTermRepository _syTermRepository;
     private readonly ICurriculaRepository _curriculaRepository;
     private readonly ICourseRepository _courseRepository;
+    private readonly IClassRosterService _classRosterService;
 
     public LookupService(
         IProgramRepository programRepository,
         ISyTermRepository syTermRepository,
         ICurriculaRepository curriculaRepository,
-        ICourseRepository courseRepository)
+        ICourseRepository courseRepository,
+        IClassRosterService classRosterService)
     {
         _programRepository = programRepository;
         _syTermRepository = syTermRepository;
         _curriculaRepository = curriculaRepository;
         _courseRepository = courseRepository;
+        _classRosterService = classRosterService;
     }
 
     public async Task<List<LookupResponse>> GetModuleLookupAsync()
@@ -154,6 +158,14 @@ public class LookupService : ILookupService
         {
             return new List<LookupResponse>();
         }
+    }
+
+    public Task<IReadOnlyList<GradeRosterClassLookupResponse>> GetGradeRosterClassLookupAsync(
+        string academicTerm,
+        string? search,
+        CancellationToken cancellationToken = default)
+    {
+        return _classRosterService.GetGradeRosterClassLookupAsync(academicTerm, search, cancellationToken);
     }
 }
 

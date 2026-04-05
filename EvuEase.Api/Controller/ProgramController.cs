@@ -103,6 +103,10 @@ public class ProgramController : BaseController
         {
             return NotFound(ex.Message);
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
         catch (Exception ex)
         {
             return InternalServerError("An error occurred while deleting program.", ex.Message);

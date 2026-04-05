@@ -10,4 +10,7 @@ public interface IStudentService
     Task<StudentResponse> CreateStudentAsync(CreateStudentRequest request);
     Task<StudentResponse> UpdateStudentAsync(UpdateStudentRequest request);
     Task DeleteStudentAsync(long id);
+
+    
+    Task<StudentEnrollmentOverviewResponse?> GetStudentEnrollmentOverviewAsync(long id, CancellationToken cancellationToken = default);
 }

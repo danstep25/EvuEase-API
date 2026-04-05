@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using EvuEase.Application.Interfaces.Persistence;
 using EvuEase.Application.Interfaces.Repositories;
+using EvuEase.Infrastructure.Persistence;
 using EvuEase.Infrastructure.Repositories;
 
 namespace EvuEase.Infrastructure
@@ -8,6 +10,7 @@ namespace EvuEase.Infrastructure
     {
         public static IServiceCollection AddInfrastructures(this IServiceCollection services)
         {
+            services.AddScoped<IApplicationUnitOfWork, EfApplicationUnitOfWork>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISystemLogRepository, SystemLogRepository>();
             services.AddScoped<IProgramRepository, ProgramRepository>();
@@ -17,8 +20,14 @@ namespace EvuEase.Infrastructure
             services.AddScoped<ITuitionFeeRepository, TuitionFeeRepository>();
             services.AddScoped<IOtherSchoolFeeRepository, OtherSchoolFeeRepository>();
             services.AddScoped<IMiscellaneousFeeRepository, MiscellaneousFeeRepository>();
+            services.AddScoped<IDownpaymentRepository, DownpaymentRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
-    
+            services.AddScoped<IGradingSchemeBasisRepository, GradingSchemeBasisRepository>();
+            services.AddScoped<IGradeScaleRowRepository, GradeScaleRowRepository>();
+            services.AddScoped<IFacultyClassRepository, FacultyClassRepository>();
+            services.AddScoped<IFacultyClassEnrollmentRepository, FacultyClassEnrollmentRepository>();
+            services.AddScoped<IArchiveRepository, ArchiveRepository>();
+
             return services;
         }
     }

@@ -15,5 +15,8 @@ public interface ICurriculaRepository
     Task DeleteCurriculaAsync(Curricula curricula);
     Task<List<LookupItem>> GetLookupItemsAsync(long? programId = null);
     Task<List<LookupItem>> GetCurriculumVersionsByProgramCodeAsync(string programCode);
+
+    
+    Task SoftDeleteAllForProgramAsync(long programId, CancellationToken cancellationToken = default);
 }
 

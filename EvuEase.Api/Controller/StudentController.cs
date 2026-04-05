@@ -29,6 +29,25 @@ public class StudentController : BaseController
         }
     }
 
+    [HttpGet("{id:long}/enrollments")]
+    public async Task<IActionResult> GetEnrollments(long id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _studentService.GetStudentEnrollmentOverviewAsync(id, cancellationToken);
+            if (data == null)
+            {
+                return NotFound($"Student with ID {id} not found.");
+            }
+
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while retrieving student enrollments.", ex.Message);
+        }
+    }
+
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {

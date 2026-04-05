@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using EvuEase.Application.Common;
 using EvuEase.Application.DTOs.Student;
 using EvuEase.Application.Interfaces.Repositories;
@@ -66,6 +67,54 @@ public class StudentRepository : BaseRepository<Student>, IStudentRepository
         return await GetAll().FirstOrDefaultAsync(s => s.id == id);
     }
 
+    public async Task<Student?> GetStudentByStudentNumberAsync(string studentNumber, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(studentNumber))
+        {
+            return null;
+        }
+
+        var key = studentNumber.Trim();
+        return await GetAll()
+            .FirstOrDefaultAsync(s => s.student_number == key, cancellationToken);
+    }
+
+    public async Task<IReadOnlyDictionary<string, Student>> GetActiveStudentsByStudentNumbersAsync(
+        IReadOnlyCollection<string> studentNumbers,
+        CancellationToken cancellationToken = default)
+    {
+        if (studentNumbers == null || studentNumbers.Count == 0)
+        {
+            return new Dictionary<string, Student>(StringComparer.Ordinal);
+        }
+
+        var keys = studentNumbers
+            .Select(n => n.Trim())
+            .Where(n => n.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (keys.Count == 0)
+        {
+            return new Dictionary<string, Student>(StringComparer.Ordinal);
+        }
+
+        var students = await GetAll()
+            .Where(s => keys.Contains(s.student_number))
+            .ToListAsync(cancellationToken);
+
+        var dict = new Dictionary<string, Student>(StringComparer.Ordinal);
+        foreach (var s in students)
+        {
+            if (!dict.ContainsKey(s.student_number))
+            {
+                dict[s.student_number] = s;
+            }
+        }
+
+        return dict;
+    }
+
     public async Task<Student> CreateStudentAsync(Student student)
     {
         await AddAsync(student);
@@ -94,5 +143,13 @@ public class StudentRepository : BaseRepository<Student>, IStudentRepository
             q = q.Where(s => s.id != excludeId.Value);
         }
         return await q.AnyAsync();
+    }
+
+    public async Task<int> CountActiveByProgramCodeAsync(string programCode, CancellationToken cancellationToken = default)
+    {
+        var code = programCode.Trim();
+        return await GetAll()
+            .Where(s => s.program_code.ToLower() == code.ToLower())
+            .CountAsync(cancellationToken);
     }
 }

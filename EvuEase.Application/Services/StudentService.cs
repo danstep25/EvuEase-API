@@ -3,6 +3,7 @@ using EvuEase.Application.Common;
 using EvuEase.Application.DTOs.Student;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Application.Interfaces.Services;
+using EvuEase.Application.EnrollmentAnalytics;
 using EvuEase.Domain.Entities;
 
 namespace EvuEase.Application.Services;
@@ -10,11 +11,16 @@ namespace EvuEase.Application.Services;
 public class StudentService : IStudentService
 {
     private readonly IStudentRepository _studentRepository;
+    private readonly IFacultyClassEnrollmentRepository _enrollmentRepository;
     private readonly IMapper _mapper;
 
-    public StudentService(IStudentRepository studentRepository, IMapper mapper)
+    public StudentService(
+        IStudentRepository studentRepository,
+        IFacultyClassEnrollmentRepository enrollmentRepository,
+        IMapper mapper)
     {
         _studentRepository = studentRepository;
+        _enrollmentRepository = enrollmentRepository;
         _mapper = mapper;
     }
 
@@ -101,5 +107,25 @@ public class StudentService : IStudentService
         }
 
         await _studentRepository.DeleteStudentAsync(student);
+    }
+
+    public async Task<StudentEnrollmentOverviewResponse?> GetStudentEnrollmentOverviewAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var student = await _studentRepository.GetStudentByIdAsync(id);
+        if (student == null)
+        {
+            return null;
+        }
+
+        var rows = await _enrollmentRepository.GetEnrollmentRowsForStudentAsync(id, cancellationToken);
+        var list = rows.ToList();
+        var summary = StudentEnrollmentAnalytics.ComputeSummary(list);
+        return new StudentEnrollmentOverviewResponse
+        {
+            Enrollments = list,
+            Summary = summary
+        };
     }
 }

@@ -1,4 +1,5 @@
 using EvuEase.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvuEase.API.Controller;
@@ -99,6 +100,38 @@ public class LookupController : BaseController
         catch (Exception ex)
         {
             return InternalServerError("An error occurred while retrieving courses lookup.", ex.Message);
+        }
+    }
+
+    
+    
+    
+    
+    
+    [Authorize]
+    [HttpGet("grade-roster-classes")]
+    public async Task<IActionResult> GetGradeRosterClasses(
+        [FromQuery] string? academicTerm,
+        [FromQuery] string? search,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(academicTerm))
+        {
+            return BadRequest("Academic term is required.");
+        }
+
+        try
+        {
+            var data = await _lookupService.GetGradeRosterClassLookupAsync(academicTerm, search, cancellationToken);
+            return Ok(data);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while loading grade roster class lookup.", ex.Message);
         }
     }
 }
