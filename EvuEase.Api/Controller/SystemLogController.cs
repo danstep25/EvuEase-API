@@ -1,12 +1,10 @@
 using EvuEase.Application.DTOs.SystemLog;
 using EvuEase.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvuEase.API.Controller;
 
 [Route("api/[controller]")]
-[Authorize]
 public class SystemLogController : BaseController
 {
     private readonly ISystemLogService _systemLogService;

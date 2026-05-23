@@ -57,9 +57,34 @@ public class StudentRepository : BaseRepository<Student>, IStudentRepository
         return await query.PaginateAsync(
             request.PageIndex,
             request.PageSize,
-            request.SortKey,
+            ResolveStudentSortKey(request.SortKey),
             request.SortDirection
         );
+    }
+
+    private static string? ResolveStudentSortKey(string? sortKey)
+    {
+        if (string.IsNullOrWhiteSpace(sortKey))
+        {
+            return sortKey;
+        }
+
+        return sortKey.Trim() switch
+        {
+            "studentNumber" or "StudentNumber" => "student_number",
+            "firstName" or "FirstName" => "first_name",
+            "lastName" or "LastName" => "last_name",
+            "middleName" or "MiddleName" => "middle_name",
+            "programCode" or "ProgramCode" => "program_code",
+            "programTitle" or "ProgramTitle" => "program_title",
+            "yearLevel" or "YearLevel" => "year_level",
+            "studentType" or "StudentType" => "student_type",
+            "enrollmentStatus" or "EnrollmentStatus" or "status" or "Status" => "enrollment_status",
+            "curriculumCode" or "CurriculumCode" => "curriculum_code",
+            "createdAt" or "CreatedAt" => "created_at",
+            "updatedAt" or "UpdatedAt" => "updated_at",
+            _ => sortKey.Trim()
+        };
     }
 
     public async Task<Student?> GetStudentByIdAsync(long id)

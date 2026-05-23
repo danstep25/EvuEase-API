@@ -88,7 +88,6 @@ C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\refint\EvuEase.Api.d
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\EvuEase.Api.pdb
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\EvuEase.Api.genruntimeconfig.cache
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\ref\EvuEase.Api.dll
-C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.Core.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.DocumentLayoutAnalysis.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.Fonts.dll
@@ -96,3 +95,4 @@ C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.Pack
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.Tokenization.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.Tokens.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Api\bin\Debug\net10.0\UglyToad.PdfPig.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

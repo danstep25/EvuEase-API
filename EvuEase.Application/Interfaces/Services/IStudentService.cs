@@ -13,4 +13,14 @@ public interface IStudentService
 
     
     Task<StudentEnrollmentOverviewResponse?> GetStudentEnrollmentOverviewAsync(long id, CancellationToken cancellationToken = default);
+
+    Task<StudentResponse?> MigrateStudentCurriculumAsync(
+        long id,
+        MigrateStudentCurriculumRequest request,
+        string? migratedBy,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<StudentCurriculumHistoryResponse>?> GetStudentCurriculumHistoryAsync(
+        long id,
+        CancellationToken cancellationToken = default);
 }

@@ -12,6 +12,7 @@ public class StudentResponse
     public string YearLevel { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public string? CurriculumCode { get; set; }
     public string? Address { get; set; }
     public string? ContactNumber { get; set; }
     public string? Email { get; set; }

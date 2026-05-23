@@ -12,6 +12,7 @@ public class Student : BaseEntity
     public string year_level { get; private set; } = string.Empty;
     public string student_type { get; private set; } = string.Empty;
     public string enrollment_status { get; private set; } = string.Empty;
+    public string? curriculum_code { get; private set; }
     public string? address { get; private set; }
     public string? contact_number { get; private set; }
     public string? email { get; private set; }
@@ -91,5 +92,12 @@ public class Student : BaseEntity
         type.GetProperty(nameof(Student.gender))?.SetValue(this, gender);
         type.GetProperty(nameof(Student.birthdate))?.SetValue(this, birthdate);
         type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
+    }
+
+    public void SetCurriculumCode(string curriculumCode)
+    {
+        var type = typeof(Student);
+        type.GetProperty(nameof(curriculum_code))?.SetValue(this, curriculumCode.Trim());
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.UtcNow);
     }
 }

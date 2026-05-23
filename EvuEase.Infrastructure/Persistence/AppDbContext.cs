@@ -25,6 +25,7 @@ public class AppDbContext : DbContext
     public DbSet<MiscellaneousFee> MiscellaneousFees { get; set; }
     public DbSet<OtherSchoolFee> OtherSchoolFees { get; set; }
     public DbSet<Student> Students { get; set; }
+    public DbSet<StudentCurriculumHistory> StudentCurriculumHistories { get; set; }
     public DbSet<TuitionFee> TuitionFees { get; set; }
     
     public DbSet<Program> Programs { get; set; }

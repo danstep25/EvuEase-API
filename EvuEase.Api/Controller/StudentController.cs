@@ -29,6 +29,53 @@ public class StudentController : BaseController
         }
     }
 
+    [HttpGet("{id:long}/curriculum-history")]
+    public async Task<IActionResult> GetCurriculumHistory(long id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _studentService.GetStudentCurriculumHistoryAsync(id, cancellationToken);
+            if (data == null)
+            {
+                return NotFound($"Student with ID {id} was not found.");
+            }
+
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while retrieving curriculum history.", ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPost("{id:long}/migrate-curriculum")]
+    public async Task<IActionResult> MigrateCurriculum(
+        long id,
+        [FromBody] MigrateStudentCurriculumRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var migratedBy = User?.Identity?.Name;
+            var data = await _studentService.MigrateStudentCurriculumAsync(id, request, migratedBy, cancellationToken);
+            if (data == null)
+            {
+                return NotFound($"Student with ID {id} was not found.");
+            }
+
+            return Ok(data);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while migrating student curriculum.", ex.Message);
+        }
+    }
+
     [HttpGet("{id:long}/enrollments")]
     public async Task<IActionResult> GetEnrollments(long id, CancellationToken cancellationToken)
     {

@@ -4,6 +4,8 @@ public class ClassRosterBatchUploadResponse
 {
     public int ImportedCount { get; set; }
 
+    public int AutoCreatedCount { get; set; }
+
     
     public IReadOnlyList<RosterPdfStudentNotInRegistry> NotFoundInRegistry { get; set; } =
         Array.Empty<RosterPdfStudentNotInRegistry>();

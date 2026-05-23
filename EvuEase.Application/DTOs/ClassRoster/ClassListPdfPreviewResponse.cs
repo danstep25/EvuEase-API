@@ -34,4 +34,16 @@ public sealed class ClassListPdfPreviewPage
 
     
     public bool CourseExistsInModule { get; set; }
+
+    public IReadOnlyList<ClassListPdfPreviewStudentRow> Students { get; set; } =
+        Array.Empty<ClassListPdfPreviewStudentRow>();
+}
+
+public sealed class ClassListPdfPreviewStudentRow
+{
+    public string RowKey { get; set; } = string.Empty;
+    public string StudentNumber { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string ProgramCode { get; set; } = string.Empty;
+    public string YearLevel { get; set; } = string.Empty;
 }

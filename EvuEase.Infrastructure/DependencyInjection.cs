@@ -22,11 +22,13 @@ namespace EvuEase.Infrastructure
             services.AddScoped<IMiscellaneousFeeRepository, MiscellaneousFeeRepository>();
             services.AddScoped<IDownpaymentRepository, DownpaymentRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IStudentCurriculumHistoryRepository, StudentCurriculumHistoryRepository>();
             services.AddScoped<IGradingSchemeBasisRepository, GradingSchemeBasisRepository>();
             services.AddScoped<IGradeScaleRowRepository, GradeScaleRowRepository>();
             services.AddScoped<IFacultyClassRepository, FacultyClassRepository>();
             services.AddScoped<IFacultyClassEnrollmentRepository, FacultyClassEnrollmentRepository>();
             services.AddScoped<IArchiveRepository, ArchiveRepository>();
+            services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
             return services;
         }

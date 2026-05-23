@@ -36,7 +36,10 @@ public interface IClassRosterService
     
     
     
-    Task<ClassRosterPdfImportSummaryResponse> ImportClassRosterPdfAsync(Stream pdfStream, CancellationToken cancellationToken = default);
+    Task<ClassRosterPdfImportSummaryResponse> ImportClassRosterPdfAsync(
+        Stream pdfStream,
+        IReadOnlyCollection<string>? includedRowKeys = null,
+        CancellationToken cancellationToken = default);
 
     
     

@@ -16,6 +16,7 @@ public class ClassRosterService : IClassRosterService
     private readonly IFacultyClassEnrollmentRepository _enrollmentRepository;
     private readonly IGradeScaleRowRepository _gradeScaleRowRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly IProgramRepository _programRepository;
     private readonly IApplicationUnitOfWork _unitOfWork;
     private readonly ICourseService _courseService;
 
@@ -24,6 +25,7 @@ public class ClassRosterService : IClassRosterService
         IFacultyClassEnrollmentRepository enrollmentRepository,
         IGradeScaleRowRepository gradeScaleRowRepository,
         IStudentRepository studentRepository,
+        IProgramRepository programRepository,
         IApplicationUnitOfWork unitOfWork,
         ICourseService courseService)
     {
@@ -31,6 +33,7 @@ public class ClassRosterService : IClassRosterService
         _enrollmentRepository = enrollmentRepository;
         _gradeScaleRowRepository = gradeScaleRowRepository;
         _studentRepository = studentRepository;
+        _programRepository = programRepository;
         _unitOfWork = unitOfWork;
         _courseService = courseService;
     }
@@ -286,6 +289,7 @@ public class ClassRosterService : IClassRosterService
         return new ClassRosterBatchUploadResponse
         {
             ImportedCount = prepared.Enrollments.Count,
+            AutoCreatedCount = prepared.AutoCreatedCount,
             NotFoundInRegistry = prepared.NotFoundInRegistry,
             Warnings = prepared.Warnings
         };
@@ -293,6 +297,7 @@ public class ClassRosterService : IClassRosterService
 
     public async Task<ClassRosterPdfImportSummaryResponse> ImportClassRosterPdfAsync(
         Stream pdfStream,
+        IReadOnlyCollection<string>? includedRowKeys = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(pdfStream);
@@ -314,6 +319,9 @@ public class ClassRosterService : IClassRosterService
 
         var fullText = string.Join("\n\n", pageTexts);
         var academicTerm = ClassListPdfClassHeaderParser.TryParseAcademicTerm(fullText) ?? "Unspecified";
+        var included = includedRowKeys == null
+            ? null
+            : new HashSet<string>(includedRowKeys.Where(k => !string.IsNullOrWhiteSpace(k)), StringComparer.Ordinal);
 
         var catalog = (await _repository.GetAllAsync(null, cancellationToken)).ToList();
         var pageResults = new List<ClassRosterPdfImportPageResult>();
@@ -332,6 +340,22 @@ public class ClassRosterService : IClassRosterService
                     SkippedReason = "No student rows on this page."
                 });
                 continue;
+            }
+
+            if (included != null)
+            {
+                parsed = parsed
+                    .Where(r => included.Contains(BuildPreviewRowKey(pageNum, r.StudentNumber)))
+                    .ToList();
+                if (parsed.Count == 0)
+                {
+                    pageResults.Add(new ClassRosterPdfImportPageResult
+                    {
+                        PageNumber = pageNum,
+                        SkippedReason = "No selected student rows on this page."
+                    });
+                    continue;
+                }
             }
 
             if (!ClassListPdfClassHeaderParser.TryParseClassHeaderFromPage(pageText, out var header))
@@ -398,6 +422,7 @@ public class ClassRosterService : IClassRosterService
                 FacultyClassId = target.id,
                 ClassCreatedFromPdf = created,
                 ImportedCount = prepared.Enrollments.Count,
+                AutoCreatedCount = prepared.AutoCreatedCount,
                 NotFoundInRegistry = prepared.NotFoundInRegistry,
                 Warnings = prepared.Warnings
             });
@@ -491,7 +516,17 @@ public class ClassRosterService : IClassRosterService
                 ClassNumber = header.ClassNumber.Trim(),
                 SectionLetter = header.SectionLetter.Trim(),
                 YearLevel = yearLevel.Trim(),
-                CourseExistsInModule = exists
+                CourseExistsInModule = exists,
+                Students = parsed
+                    .Select(r => new ClassListPdfPreviewStudentRow
+                    {
+                        RowKey = BuildPreviewRowKey(pageNum, r.StudentNumber),
+                        StudentNumber = r.StudentNumber.Trim(),
+                        DisplayName = r.DisplayName.Trim(),
+                        ProgramCode = r.ProgramCode.Trim(),
+                        YearLevel = r.YearLevel.Trim()
+                    })
+                    .ToList()
             });
         }
 
@@ -540,7 +575,6 @@ public class ClassRosterService : IClassRosterService
         return null;
     }
 
-    
     private static bool YearLevelMatch(string? dbValue, string pdfValue)
     {
         if (FieldMatch(dbValue, pdfValue))
@@ -565,11 +599,17 @@ public class ClassRosterService : IClassRosterService
         return string.Equals(dbValue?.Trim(), pdfValue.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
+    private static string BuildPreviewRowKey(int pageNumber, string studentNumber)
+    {
+        return $"{pageNumber}:{studentNumber.Trim()}";
+    }
+
     private sealed class PreparedEnrollments
     {
         public List<FacultyClassEnrollment> Enrollments { get; } = new();
         public List<string> Warnings { get; } = new();
         public List<RosterPdfStudentNotInRegistry> NotFoundInRegistry { get; } = new();
+        public int AutoCreatedCount { get; set; }
     }
 
     private async Task<PreparedEnrollments> PrepareEnrollmentsAsync(
@@ -593,9 +633,10 @@ public class ClassRosterService : IClassRosterService
             }
         }
 
-        var studentsByNumber = await _studentRepository.GetActiveStudentsByStudentNumbersAsync(
+        var existingStudents = await _studentRepository.GetActiveStudentsByStudentNumbersAsync(
             distinctNumbers,
             cancellationToken);
+        var studentsByNumber = new Dictionary<string, Student>(existingStudents, StringComparer.Ordinal);
 
         var result = new PreparedEnrollments();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -616,14 +657,25 @@ public class ClassRosterService : IClassRosterService
 
             if (!studentsByNumber.TryGetValue(key, out var student))
             {
-                result.NotFoundInRegistry.Add(new RosterPdfStudentNotInRegistry
+                var autoCreated = await TryAutoCreateStudentFromPdfRowAsync(row, cancellationToken);
+                if (autoCreated != null)
                 {
-                    StudentNumber = key,
-                    PdfDisplayName = row.DisplayName.Trim(),
-                    PdfProgramCode = row.ProgramCode.Trim(),
-                    PdfYearLevel = row.YearLevel.Trim()
-                });
-                continue;
+                    studentsByNumber[key] = autoCreated;
+                    student = autoCreated;
+                    result.AutoCreatedCount++;
+                }
+                else
+                {
+                    result.NotFoundInRegistry.Add(new RosterPdfStudentNotInRegistry
+                    {
+                        StudentNumber = key,
+                        PdfDisplayName = row.DisplayName.Trim(),
+                        PdfProgramCode = row.ProgramCode.Trim(),
+                        PdfYearLevel = row.YearLevel.Trim()
+                    });
+                    result.Warnings.Add($"Skipped student {key}: could not auto-create from PDF row.");
+                    continue;
+                }
             }
 
             result.Enrollments.Add(FacultyClassEnrollment.Create(facultyClassId, student.id));
@@ -641,6 +693,99 @@ public class ClassRosterService : IClassRosterService
         await _enrollmentRepository.ReplaceAllForClassAsync(facultyClassId, enrollments, cancellationToken);
         await _repository.UpdateEnrolledCountAsync(facultyClassId, enrollments.Count, cancellationToken);
         await tx.CommitAsync(cancellationToken);
+    }
+
+    private async Task<Student?> TryAutoCreateStudentFromPdfRowAsync(
+        ClassListPdfParser.ParsedRow row,
+        CancellationToken cancellationToken)
+    {
+        var studentNumber = row.StudentNumber.Trim();
+        if (studentNumber.Length == 0)
+        {
+            return null;
+        }
+
+        var (firstName, lastName, middleName) = ParsePdfDisplayName(row.DisplayName);
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+        {
+            return null;
+        }
+
+        var programCode = row.ProgramCode.Trim();
+        if (programCode.Length == 0)
+        {
+            return null;
+        }
+
+        var yearLevel = row.YearLevel.Trim();
+        if (yearLevel.Length == 0)
+        {
+            return null;
+        }
+
+        var existing = await _studentRepository.GetStudentByStudentNumberAsync(studentNumber, cancellationToken);
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        var programTitle = programCode;
+        var program = await _programRepository.GetProgramByCodeAsync(programCode);
+        if (!string.IsNullOrWhiteSpace(program?.program_title))
+        {
+            programTitle = program.program_title.Trim();
+        }
+
+        var created = Student.Create(
+            studentNumber,
+            firstName,
+            lastName,
+            middleName,
+            programCode,
+            programTitle,
+            yearLevel,
+            studentType: "Regular",
+            enrollmentStatus: "Active");
+
+        return await _studentRepository.CreateStudentAsync(created);
+    }
+
+    private static (string FirstName, string LastName, string? MiddleName) ParsePdfDisplayName(string displayName)
+    {
+        var text = displayName.Trim();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return (string.Empty, string.Empty, null);
+        }
+
+        var commaIndex = text.IndexOf(',');
+        if (commaIndex >= 0)
+        {
+            var last = text[..commaIndex].Trim();
+            var rest = text[(commaIndex + 1)..].Trim();
+            var parts = rest
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var first = parts.Length > 0 ? parts[0] : string.Empty;
+            var middle = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : null;
+            return (first, last, string.IsNullOrWhiteSpace(middle) ? null : middle);
+        }
+
+        var tokens = text
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (tokens.Length == 0)
+        {
+            return (string.Empty, string.Empty, null);
+        }
+
+        if (tokens.Length == 1)
+        {
+            return (tokens[0], tokens[0], null);
+        }
+
+        var lastName = tokens[^1];
+        var firstName = tokens[0];
+        var middleName = tokens.Length > 2 ? string.Join(" ", tokens.Skip(1).Take(tokens.Length - 2)) : null;
+        return (firstName, lastName, string.IsNullOrWhiteSpace(middleName) ? null : middleName);
     }
 
     private static ClassRosterResponse MapToResponse(FacultyClass e)
@@ -698,3 +843,4 @@ public class ClassRosterService : IClassRosterService
         }).ToList();
     }
 }
+

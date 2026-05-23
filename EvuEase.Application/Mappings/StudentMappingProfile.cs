@@ -19,6 +19,7 @@ public class StudentMappingProfile : Profile
             .ForMember(dest => dest.YearLevel, opt => opt.MapFrom(src => src.year_level))
             .ForMember("Type", opt => opt.MapFrom(src => src.student_type))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.enrollment_status))
+            .ForMember(dest => dest.CurriculumCode, opt => opt.MapFrom(src => src.curriculum_code))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.address))
             .ForMember(dest => dest.ContactNumber, opt => opt.MapFrom(src => src.contact_number))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.email))

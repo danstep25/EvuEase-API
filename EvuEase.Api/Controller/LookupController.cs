@@ -1,5 +1,4 @@
 using EvuEase.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvuEase.API.Controller;
@@ -103,12 +102,6 @@ public class LookupController : BaseController
         }
     }
 
-    
-    
-    
-    
-    
-    [Authorize]
     [HttpGet("grade-roster-classes")]
     public async Task<IActionResult> GetGradeRosterClasses(
         [FromQuery] string? academicTerm,

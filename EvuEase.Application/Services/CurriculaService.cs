@@ -110,8 +110,10 @@ public class CurriculaService : ICurriculaService
             throw new Exception("Curriculum not found");
         }
 
+        var curriculumCode = ResolveCurriculumCode(curriculaRequest, curricula);
+
         curricula.Update(
-            curriculaRequest.CurriculumCode,
+            curriculumCode,
             curriculaRequest.Version,
             curriculaRequest.ProgramId,
             curriculaRequest.SyId,
@@ -131,6 +133,30 @@ public class CurriculaService : ICurriculaService
             throw new Exception("Curriculum not found");
         }
         await _curriculaRepository.DeleteCurriculaAsync(curricula);
+    }
+
+    private static string ResolveCurriculumCode(UpdateCurriculaRequest request, Curricula existing)
+    {
+        var fromRequest = request.CurriculumCode?.Trim();
+        if (!string.IsNullOrEmpty(fromRequest))
+        {
+            return fromRequest;
+        }
+
+        var fromEntity = existing.curriculum_code?.Trim();
+        if (!string.IsNullOrEmpty(fromEntity))
+        {
+            return fromEntity;
+        }
+
+        var programCode = request.ProgramCode?.Trim();
+        var version = request.Version?.Trim();
+        if (!string.IsNullOrEmpty(programCode) && !string.IsNullOrEmpty(version))
+        {
+            return $"{programCode}-{version}";
+        }
+
+        return string.Empty;
     }
 }
 

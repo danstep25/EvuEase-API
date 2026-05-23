@@ -97,7 +97,10 @@ public class ClassRosterController : BaseController
     [Authorize]
     [HttpPost("import-pdf")]
     [RequestSizeLimit(20 * 1024 * 1024)]
-    public async Task<IActionResult> ImportClassRosterPdf(IFormFile? file, CancellationToken cancellationToken)
+    public async Task<IActionResult> ImportClassRosterPdf(
+        [FromForm] IFormFile? file,
+        [FromForm] List<string>? includedRowKeys,
+        CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
         {
@@ -113,7 +116,7 @@ public class ClassRosterController : BaseController
         try
         {
             await using var stream = file.OpenReadStream();
-            var data = await _classRosterService.ImportClassRosterPdfAsync(stream, cancellationToken);
+            var data = await _classRosterService.ImportClassRosterPdfAsync(stream, includedRowKeys, cancellationToken);
             return Ok(data);
         }
         catch (ArgumentException ex)

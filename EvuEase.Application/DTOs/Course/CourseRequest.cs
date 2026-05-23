@@ -11,8 +11,7 @@ public class CourseRequest : FilterBaseDto
     public string? YearLevel { get; set; }
     public string? Semester { get; set; }
     public string? Status { get; set; }
+    
+    public bool? HasPrerequisites { get; set; }
 }
-
-
-
 

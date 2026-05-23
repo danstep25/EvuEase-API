@@ -35,8 +35,9 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
 
         if (!string.IsNullOrWhiteSpace(courseRequest.CurriculumCode))
         {
+            var curriculumCode = courseRequest.CurriculumCode.Trim().ToLower();
             var curriculaQuery = dbContext.Set<Curricula>()
-                .Where(cu => cu.curriculum_code.ToLower().Contains(courseRequest.CurriculumCode.ToLower()))
+                .Where(cu => cu.curriculum_code.ToLower() == curriculumCode)
                 .Select(cu => cu.id);
             query = query.Where(c => curriculaQuery.Contains(c.curriculum_id));
         }
@@ -64,6 +65,28 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
         if (!string.IsNullOrWhiteSpace(courseRequest.Status))
         {
             query = query.Where(c => c.status.ToString().ToLower() == courseRequest.Status.ToLower());
+        }
+
+        if (courseRequest.HasPrerequisites.HasValue)
+        {
+            if (courseRequest.HasPrerequisites.Value)
+            {
+                query = query.Where(c =>
+                    c.course_has_prerequities == 1 &&
+                    c.prerequisites != null &&
+                    c.prerequisites != "" &&
+                    c.prerequisites.ToLower() != "none" &&
+                    c.prerequisites.ToLower() != "n/a");
+            }
+            else
+            {
+                query = query.Where(c =>
+                    c.course_has_prerequities == 0 ||
+                    c.prerequisites == null ||
+                    c.prerequisites == "" ||
+                    c.prerequisites.ToLower() == "none" ||
+                    c.prerequisites.ToLower() == "n/a");
+            }
         }
 
         return await query.PaginateAsync(

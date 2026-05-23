@@ -22,6 +22,7 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         builder.Property(s => s.year_level).HasColumnName("year_level").HasMaxLength(50).IsRequired();
         builder.Property(s => s.student_type).HasColumnName("student_type").HasMaxLength(50).IsRequired();
         builder.Property(s => s.enrollment_status).HasColumnName("enrollment_status").HasMaxLength(50).IsRequired();
+        builder.Property(s => s.curriculum_code).HasColumnName("curriculum_code").HasMaxLength(50);
 
         builder.Property(s => s.address).HasColumnName("address").HasMaxLength(500);
         builder.Property(s => s.contact_number).HasColumnName("contact_number").HasMaxLength(50);

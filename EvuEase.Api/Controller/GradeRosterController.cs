@@ -10,8 +10,6 @@ namespace EvuEase.API.Controller;
 public class GradeRosterController : BaseController
 {
     
-    
-    
     [Authorize]
     [HttpGet]
     public IActionResult GetGradeRosters()
