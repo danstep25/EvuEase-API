@@ -56,11 +56,11 @@ public class LookupController : BaseController
     }
 
     [HttpGet("curricula")]
-    public async Task<IActionResult> GetCurricula([FromQuery] long? programId = null)
+    public async Task<IActionResult> GetCurricula([FromQuery] long? programId = null, [FromQuery] bool activeOnly = false)
     {
         try
         {
-            var data = await _lookupService.GetCurriculaLookupAsync(programId);
+            var data = await _lookupService.GetCurriculaLookupAsync(programId, activeOnly);
             return Ok(data);
         }
         catch (Exception ex)
@@ -70,7 +70,7 @@ public class LookupController : BaseController
     }
 
     [HttpGet("curriculum-versions")]
-    public async Task<IActionResult> GetCurriculumVersions([FromQuery] string programCode)
+    public async Task<IActionResult> GetCurriculumVersions([FromQuery] string programCode, [FromQuery] bool activeOnly = false)
     {
         try
         {
@@ -79,7 +79,7 @@ public class LookupController : BaseController
                 return BadRequest("Program code is required.");
             }
 
-            var data = await _lookupService.GetCurriculumVersionsLookupAsync(programCode);
+            var data = await _lookupService.GetCurriculumVersionsLookupAsync(programCode, activeOnly);
             return Ok(data);
         }
         catch (Exception ex)

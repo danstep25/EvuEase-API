@@ -9,6 +9,8 @@ public interface ISyTermRepository
 {
     Task<PagedResults<SyTerm>> GetAllSyTerms(SyTermRequest syTermRequest);
     Task<SyTerm?> GetSyTermByIdAsync(long id);
+    Task<SyTerm?> GetCurrentSyTermAsync(CancellationToken cancellationToken = default);
+    Task<SyTerm> SetCurrentSyTermAsync(long syTermId, CancellationToken cancellationToken = default);
     Task<SyTerm> CreateSyTermAsync(SyTerm syTerm);
     Task<SyTerm> UpdateSyTermAsync(SyTerm syTerm);
     Task DeleteSyTermAsync(SyTerm syTerm);

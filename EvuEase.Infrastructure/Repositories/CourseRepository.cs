@@ -136,6 +136,30 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
             .ToListAsync();
     }
 
+    public async Task<HashSet<string>> GetExistingCourseCodesAsync(
+        IEnumerable<string> courseCodes,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = courseCodes
+            .Select(c => c.Trim())
+            .Where(c => c.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalized.Count == 0)
+        {
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        var lowerSet = normalized.Select(c => c.ToLower()).ToList();
+        var matches = await GetAll()
+            .Where(c => lowerSet.Contains(c.course_code.ToLower()))
+            .Select(c => c.course_code)
+            .ToListAsync(cancellationToken);
+
+        return new HashSet<string>(matches, StringComparer.OrdinalIgnoreCase);
+    }
+
     public async Task SoftDeleteAllForProgramAsync(long programId, CancellationToken cancellationToken = default)
     {
         var list = await GetAll()

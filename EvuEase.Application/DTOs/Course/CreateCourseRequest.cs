@@ -7,6 +7,8 @@ public class CreateCourseRequest
     public long ProgramId { get; set; }
     public string CourseTitle { get; set; } = string.Empty;
     public int CourseTotalUnits { get; set; }
+    public int CourseLecUnits { get; set; }
+    public int CourseLabUnits { get; set; }
     public string CourseYearLevel { get; set; } = string.Empty;
     public string CourseSemester { get; set; } = string.Empty;
     public string? CourseComponent { get; set; }

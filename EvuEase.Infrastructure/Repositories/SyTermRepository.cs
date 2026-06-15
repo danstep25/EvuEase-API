@@ -62,6 +62,59 @@ public class SyTermRepository : BaseRepository<SyTerm>, ISyTermRepository
         return await GetAll().FirstOrDefaultAsync(s => s.sy_id == id);
     }
 
+    public async Task<SyTerm?> GetCurrentSyTermAsync(CancellationToken cancellationToken = default)
+    {
+        return await GetAll()
+            .Where(s => s.sy_status.ToLower() == "active")
+            .OrderByDescending(s => s.sy_year)
+            .ThenByDescending(s => s.sy_semester)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<SyTerm> SetCurrentSyTermAsync(long syTermId, CancellationToken cancellationToken = default)
+    {
+        var target = await GetSyTermByIdAsync(syTermId);
+        if (target == null)
+        {
+            throw new Exception("School Year Term not found");
+        }
+
+        var activeOthers = await GetAll()
+            .Where(s => s.sy_id != syTermId && s.sy_status.ToLower() == "active")
+            .ToListAsync(cancellationToken);
+
+        foreach (var row in activeOthers)
+        {
+            row.Update(
+                row.sy_code,
+                row.sy_year,
+                row.sy_semester,
+                row.sy_startdate,
+                row.sy_enddate,
+                row.sy_enrollmentstart,
+                row.sy_enrollmentend,
+                "Inactive");
+            await UpdateAsync(row, cancellationToken);
+        }
+
+        if (!string.Equals(target.sy_status, "Active", StringComparison.OrdinalIgnoreCase))
+        {
+            target.Update(
+                target.sy_code,
+                target.sy_year,
+                target.sy_semester,
+                target.sy_startdate,
+                target.sy_enddate,
+                target.sy_enrollmentstart,
+                target.sy_enrollmentend,
+                "Active");
+            await UpdateAsync(target, cancellationToken);
+        }
+
+        await SaveChangesAsync(cancellationToken);
+        return target;
+    }
+
     public async Task<SyTerm> CreateSyTermAsync(SyTerm syTerm)
     {
         await AddAsync(syTerm);

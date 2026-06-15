@@ -28,7 +28,9 @@ public class Course : BaseEntity
         string courseSemester,
         string? courseComponent = null,
         string? prerequisites = null,
-        string? description = null)
+        string? description = null,
+        int courseLecUnits = 0,
+        int courseLabUnits = 0)
     {
         var course = new Course();
         var type = typeof(Course);
@@ -37,8 +39,8 @@ public class Course : BaseEntity
         type.GetProperty(nameof(curriculum_id))?.SetValue(course, curriculumId);
         type.GetProperty(nameof(program_id))?.SetValue(course, programId);
         type.GetProperty(nameof(course_title))?.SetValue(course, courseTitle);
-        type.GetProperty(nameof(course_lec_units))?.SetValue(course, 0);
-        type.GetProperty(nameof(course_lab_units))?.SetValue(course, 0);
+        type.GetProperty(nameof(course_lec_units))?.SetValue(course, courseLecUnits);
+        type.GetProperty(nameof(course_lab_units))?.SetValue(course, courseLabUnits);
         type.GetProperty(nameof(course_total_units))?.SetValue(course, courseTotalUnits);
         type.GetProperty(nameof(course_yearlevel))?.SetValue(course, courseYearLevel);
         type.GetProperty(nameof(course_semester))?.SetValue(course, courseSemester);
@@ -61,13 +63,17 @@ public class Course : BaseEntity
         string courseSemester,
         string? courseComponent = null,
         string? prerequisites = null,
-        string? description = null)
+        string? description = null,
+        int courseLecUnits = 0,
+        int courseLabUnits = 0)
     {
         var type = typeof(Course);
 
         type.GetProperty(nameof(curriculum_id))?.SetValue(this, curriculumId);
         type.GetProperty(nameof(program_id))?.SetValue(this, programId);
         type.GetProperty(nameof(course_title))?.SetValue(this, courseTitle);
+        type.GetProperty(nameof(course_lec_units))?.SetValue(this, courseLecUnits);
+        type.GetProperty(nameof(course_lab_units))?.SetValue(this, courseLabUnits);
         type.GetProperty(nameof(course_total_units))?.SetValue(this, courseTotalUnits);
         type.GetProperty(nameof(course_yearlevel))?.SetValue(this, courseYearLevel);
         type.GetProperty(nameof(course_semester))?.SetValue(this, courseSemester);

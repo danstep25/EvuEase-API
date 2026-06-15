@@ -90,17 +90,28 @@ public class FacultyClassEnrollmentRepository : IFacultyClassEnrollmentRepositor
             .ToListAsync(cancellationToken);
 
         return rows
-            .Select(x => new ClassRosterStudentResponse
-            {
-                Id = x.id,
-                StudentId = x.s.student_number,
-                DisplayName = FormatStudentDisplayName(x.s),
-                ProgramCode = x.s.program_code,
-                YearLevel = x.s.year_level,
-                OfficialGrade = x.official_grade,
-                Remarks = GradeRosterRemarksHelper.EffectiveRemarks(x.remarks, x.official_grade)
-            })
+            .Select(x => MapStudentResponse(x.id, x.official_grade, x.remarks, x.s))
             .ToList();
+    }
+
+    private static ClassRosterStudentResponse MapStudentResponse(
+        long enrollmentId,
+        string? officialGrade,
+        string? remarks,
+        Student student)
+    {
+        return new ClassRosterStudentResponse
+        {
+            Id = enrollmentId,
+            StudentRecordId = student.id,
+            StudentId = student.student_number,
+            DisplayName = FormatStudentDisplayName(student),
+            ProgramCode = student.program_code,
+            YearLevel = student.year_level,
+            CurriculumCode = string.IsNullOrWhiteSpace(student.curriculum_code) ? null : student.curriculum_code.Trim(),
+            OfficialGrade = officialGrade,
+            Remarks = GradeRosterRemarksHelper.EffectiveRemarks(remarks, officialGrade)
+        };
     }
 
     private static string FormatStudentDisplayName(Student s)
@@ -158,6 +169,30 @@ public class FacultyClassEnrollmentRepository : IFacultyClassEnrollmentRepositor
         return await GetStudentRowByEnrollmentIdAsync(entity.id, cancellationToken);
     }
 
+    public async Task<bool> StudentHasCourseEnrollmentAsync(
+        long studentId,
+        string courseCode,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = courseCode.Trim().ToLower();
+        if (string.IsNullOrEmpty(normalized))
+        {
+            return false;
+        }
+
+        return await (
+            from e in _dbContext.FacultyClassEnrollments.AsNoTracking()
+            join fc in _dbContext.FacultyClasses.AsNoTracking() on e.faculty_class_id equals fc.id
+            where e.student_id == studentId
+                  && e.status
+                  && e.deleted_at == null
+                  && fc.status
+                  && fc.deleted_at == null
+                  && fc.course_code.ToLower() == normalized
+            select e.id
+        ).AnyAsync(cancellationToken);
+    }
+
     public async Task<bool> RemoveEnrollmentAsync(
         long facultyClassId,
         long enrollmentId,
@@ -184,16 +219,7 @@ public class FacultyClassEnrollmentRepository : IFacultyClassEnrollmentRepositor
             return null;
         }
 
-        return new ClassRosterStudentResponse
-        {
-            Id = row.id,
-            StudentId = row.s.student_number,
-            DisplayName = FormatStudentDisplayName(row.s),
-            ProgramCode = row.s.program_code,
-            YearLevel = row.s.year_level,
-            OfficialGrade = row.official_grade,
-            Remarks = GradeRosterRemarksHelper.EffectiveRemarks(row.remarks, row.official_grade)
-        };
+        return MapStudentResponse(row.id, row.official_grade, row.remarks, row.s);
     }
 
     public async Task ReplaceAllForClassAsync(

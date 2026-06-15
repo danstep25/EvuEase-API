@@ -2,6 +2,7 @@ using EvuEase.Application.DTOs.ClassRoster;
 using EvuEase.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace EvuEase.API.Controller;
 
@@ -100,6 +101,7 @@ public class ClassRosterController : BaseController
     public async Task<IActionResult> ImportClassRosterPdf(
         [FromForm] IFormFile? file,
         [FromForm] List<string>? includedRowKeys,
+        [FromForm] string? programCurriculaJson,
         CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
@@ -113,10 +115,29 @@ public class ClassRosterController : BaseController
             return BadRequest("Only PDF files are accepted.");
         }
 
+        IReadOnlyList<ProgramCurriculumImportSelection>? programCurricula = null;
+        if (!string.IsNullOrWhiteSpace(programCurriculaJson))
+        {
+            try
+            {
+                programCurricula = JsonSerializer.Deserialize<List<ProgramCurriculumImportSelection>>(
+                    programCurriculaJson,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (JsonException)
+            {
+                return BadRequest("Invalid programCurriculaJson payload.");
+            }
+        }
+
         try
         {
             await using var stream = file.OpenReadStream();
-            var data = await _classRosterService.ImportClassRosterPdfAsync(stream, includedRowKeys, cancellationToken);
+            var data = await _classRosterService.ImportClassRosterPdfAsync(
+                stream,
+                includedRowKeys,
+                programCurricula,
+                cancellationToken);
             return Ok(data);
         }
         catch (ArgumentException ex)

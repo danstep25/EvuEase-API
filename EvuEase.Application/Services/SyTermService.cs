@@ -30,6 +30,18 @@ public class SyTermService : ISyTermService
         return syTerm == null ? null : _mapper.Map<SyTermResponse>(syTerm);
     }
 
+    public async Task<SyTermResponse?> GetCurrentSyTermAsync(CancellationToken cancellationToken = default)
+    {
+        var syTerm = await _syTermRepository.GetCurrentSyTermAsync(cancellationToken);
+        return syTerm == null ? null : _mapper.Map<SyTermResponse>(syTerm);
+    }
+
+    public async Task<SyTermResponse> SetCurrentSyTermAsync(long syTermId, CancellationToken cancellationToken = default)
+    {
+        var result = await _syTermRepository.SetCurrentSyTermAsync(syTermId, cancellationToken);
+        return _mapper.Map<SyTermResponse>(result);
+    }
+
     public async Task<SyTermResponse> CreateSyTermAsync(CreateSyTermRequest syTermRequest)
     {
         var syTerm = SyTerm.Create(

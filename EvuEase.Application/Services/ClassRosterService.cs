@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using EvuEase.Application.ClassRoster;
+using EvuEase.Application.Common;
 using EvuEase.Application.DTOs.ClassRoster;
 using EvuEase.Application.DTOs.GradeRoster;
 using EvuEase.Application.Interfaces.Persistence;
@@ -17,6 +18,7 @@ public class ClassRosterService : IClassRosterService
     private readonly IGradeScaleRowRepository _gradeScaleRowRepository;
     private readonly IStudentRepository _studentRepository;
     private readonly IProgramRepository _programRepository;
+    private readonly IStudentCurriculumAssignmentService _curriculumAssignmentService;
     private readonly IApplicationUnitOfWork _unitOfWork;
     private readonly ICourseService _courseService;
 
@@ -26,6 +28,7 @@ public class ClassRosterService : IClassRosterService
         IGradeScaleRowRepository gradeScaleRowRepository,
         IStudentRepository studentRepository,
         IProgramRepository programRepository,
+        IStudentCurriculumAssignmentService curriculumAssignmentService,
         IApplicationUnitOfWork unitOfWork,
         ICourseService courseService)
     {
@@ -34,6 +37,7 @@ public class ClassRosterService : IClassRosterService
         _gradeScaleRowRepository = gradeScaleRowRepository;
         _studentRepository = studentRepository;
         _programRepository = programRepository;
+        _curriculumAssignmentService = curriculumAssignmentService;
         _unitOfWork = unitOfWork;
         _courseService = courseService;
     }
@@ -89,6 +93,13 @@ public class ClassRosterService : IClassRosterService
         if (request.Enrolled < 0)
         {
             throw new ArgumentException("Enrolled count cannot be negative.");
+        }
+
+        var termKeys = ClassListPdfClassHeaderParser.GetAcademicPeriodMatchKeys(academicTerm);
+        if (await _repository.ExistsByClassNumberAndTermKeysAsync(classNumber, termKeys, null, cancellationToken))
+        {
+            throw new ArgumentException(
+                $"Class number \"{classNumber}\" already exists for academic term \"{academicTerm}\".");
         }
 
         var entity = FacultyClass.Create(
@@ -154,6 +165,10 @@ public class ClassRosterService : IClassRosterService
         }
 
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        await _curriculumAssignmentService.TryAssignDefaultCurriculumForFirstYearAsync(
+            student,
+            StudentCurriculumAssignmentService.DefaultFirstYearReason,
+            cancellationToken);
         var row = await _enrollmentRepository.AddEnrollmentAsync(facultyClassId, studentId, cancellationToken);
         if (row == null)
         {
@@ -283,7 +298,7 @@ public class ClassRosterService : IClassRosterService
                 "No student rows were found. Use the official class list PDF (columns: Student No, Name, Program, Level).");
         }
 
-        var prepared = await PrepareEnrollmentsAsync(facultyClassId, parsed, cancellationToken);
+        var prepared = await PrepareEnrollmentsAsync(facultyClassId, parsed, null, cancellationToken);
         await ApplyRosterReplaceInTransactionAsync(facultyClassId, prepared.Enrollments, cancellationToken);
 
         return new ClassRosterBatchUploadResponse
@@ -298,9 +313,12 @@ public class ClassRosterService : IClassRosterService
     public async Task<ClassRosterPdfImportSummaryResponse> ImportClassRosterPdfAsync(
         Stream pdfStream,
         IReadOnlyCollection<string>? includedRowKeys = null,
+        IReadOnlyList<ProgramCurriculumImportSelection>? programCurricula = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(pdfStream);
+
+        var programCurriculumMap = BuildProgramCurriculumMap(programCurricula);
 
         IReadOnlyList<string> pageTexts;
         try
@@ -390,6 +408,22 @@ public class ClassRosterService : IClassRosterService
             }
             else
             {
+                var termKeys = ClassListPdfClassHeaderParser.GetAcademicPeriodMatchKeys(academicTerm.Trim());
+                if (await _repository.ExistsByClassNumberAndTermKeysAsync(
+                        header.ClassNumber.Trim(),
+                        termKeys,
+                        null,
+                        cancellationToken))
+                {
+                    pageResults.Add(new ClassRosterPdfImportPageResult
+                    {
+                        PageNumber = pageNum,
+                        SkippedReason =
+                            $"Class number \"{header.ClassNumber.Trim()}\" already exists for this academic term."
+                    });
+                    continue;
+                }
+
                 var entity = FacultyClass.Create(
                     header.CourseCode.Trim(),
                     header.ClassNumber.Trim(),
@@ -406,7 +440,11 @@ public class ClassRosterService : IClassRosterService
                 created = true;
             }
 
-            var prepared = await PrepareEnrollmentsAsync(target.id, parsed, cancellationToken);
+            var prepared = await PrepareEnrollmentsAsync(
+                target.id,
+                parsed,
+                programCurriculumMap,
+                cancellationToken);
             await _enrollmentRepository.ReplaceAllForClassAsync(target.id, prepared.Enrollments, cancellationToken);
             await _repository.UpdateEnrolledCountAsync(target.id, prepared.Enrollments.Count, cancellationToken);
             await tx.CommitAsync(cancellationToken);
@@ -615,7 +653,8 @@ public class ClassRosterService : IClassRosterService
     private async Task<PreparedEnrollments> PrepareEnrollmentsAsync(
         long facultyClassId,
         IReadOnlyList<ClassListPdfParser.ParsedRow> parsed,
-        CancellationToken cancellationToken)
+        IReadOnlyDictionary<string, string>? programCurriculumMap = null,
+        CancellationToken cancellationToken = default)
     {
         var distinctNumbers = new List<string>();
         var distinctSeen = new HashSet<string>(StringComparer.Ordinal);
@@ -676,6 +715,18 @@ public class ClassRosterService : IClassRosterService
                     result.Warnings.Add($"Skipped student {key}: could not auto-create from PDF row.");
                     continue;
                 }
+            }
+
+            if (programCurriculumMap != null)
+            {
+                await TryAssignCurriculumFromImportMapAsync(student, programCurriculumMap, cancellationToken);
+            }
+            else
+            {
+                await _curriculumAssignmentService.TryAssignDefaultCurriculumForFirstYearAsync(
+                    student,
+                    StudentCurriculumAssignmentService.DefaultFirstYearReason,
+                    cancellationToken);
             }
 
             result.Enrollments.Add(FacultyClassEnrollment.Create(facultyClassId, student.id));
@@ -748,6 +799,59 @@ public class ClassRosterService : IClassRosterService
             enrollmentStatus: "Active");
 
         return await _studentRepository.CreateStudentAsync(created);
+    }
+
+    private async Task TryAssignCurriculumFromImportMapAsync(
+        Student student,
+        IReadOnlyDictionary<string, string> programCurriculumMap,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(student.curriculum_code))
+        {
+            return;
+        }
+
+        var programCode = student.program_code?.Trim() ?? string.Empty;
+        if (programCode.Length == 0)
+        {
+            return;
+        }
+
+        if (!programCurriculumMap.TryGetValue(programCode, out var curriculumCode)
+            || string.IsNullOrWhiteSpace(curriculumCode))
+        {
+            return;
+        }
+
+        await _curriculumAssignmentService.AssignCurriculumIfMissingAsync(
+            student,
+            curriculumCode.Trim(),
+            "Assigned during class list PDF import.",
+            cancellationToken);
+    }
+
+    private static IReadOnlyDictionary<string, string>? BuildProgramCurriculumMap(
+        IReadOnlyList<ProgramCurriculumImportSelection>? programCurricula)
+    {
+        if (programCurricula == null || programCurricula.Count == 0)
+        {
+            return null;
+        }
+
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var row in programCurricula)
+        {
+            var programCode = row.ProgramCode?.Trim() ?? string.Empty;
+            var curriculumCode = row.CurriculumCode?.Trim() ?? string.Empty;
+            if (programCode.Length == 0 || curriculumCode.Length == 0)
+            {
+                continue;
+            }
+
+            map[programCode] = curriculumCode;
+        }
+
+        return map.Count == 0 ? null : map;
     }
 
     private static (string FirstName, string LastName, string? MiddleName) ParsePdfDisplayName(string displayName)

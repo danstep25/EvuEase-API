@@ -8,6 +8,8 @@ public class ClassRosterStudentResponse
     
     public long Id { get; set; }
 
+    public long StudentRecordId { get; set; }
+
     public string StudentId { get; set; } = string.Empty;
 
     
@@ -16,6 +18,8 @@ public class ClassRosterStudentResponse
     public string ProgramCode { get; set; } = string.Empty;
 
     public string YearLevel { get; set; } = string.Empty;
+
+    public string? CurriculumCode { get; set; }
 
     
     public string? OfficialGrade { get; set; }

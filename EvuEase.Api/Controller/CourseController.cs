@@ -48,6 +48,126 @@ public class CourseController : BaseController
     }
 
     [Authorize]
+    [HttpPost("batch/detect-pdf")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<IActionResult> DetectBatchPdf(IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("A PDF file is required.");
+        }
+
+        var name = file.FileName ?? string.Empty;
+        if (!name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Only PDF files are accepted.");
+        }
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var data = await _courseService.DetectBatchPdfAsync(stream, cancellationToken);
+            return Ok(data);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while reading the curriculum PDF.", ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPost("batch/parse-pdf")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<IActionResult> ParseBatchPdf(
+        IFormFile? file,
+        [FromForm] long programId,
+        [FromForm] string curriculumCode,
+        CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("A PDF file is required.");
+        }
+
+        var name = file.FileName ?? string.Empty;
+        if (!name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Only PDF files are accepted.");
+        }
+
+        if (programId <= 0)
+        {
+            return BadRequest("Program is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(curriculumCode))
+        {
+            return BadRequest("Curriculum code is required.");
+        }
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var data = await _courseService.PreviewBatchPdfAsync(stream, programId, curriculumCode.Trim(), cancellationToken);
+            return Ok(data);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while parsing the curriculum PDF.", ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPost("batch/preview")]
+    public async Task<IActionResult> PreviewBatchImport(
+        [FromBody] CourseBatchImportRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _courseService.PreviewBatchImportAsync(request, cancellationToken);
+            return Ok(data);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while previewing the course batch import.", ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPost("batch/import")]
+    public async Task<IActionResult> ImportBatch(
+        [FromBody] CourseBatchImportRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _courseService.ImportBatchAsync(request, cancellationToken);
+            return Ok(data);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while importing courses.", ex.Message);
+        }
+    }
+
+    [Authorize]
     [HttpPost("new")]
     public async Task<IActionResult> Create([FromBody] CreateCourseRequest courseRequest)
     {

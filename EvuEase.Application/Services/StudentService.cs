@@ -16,6 +16,7 @@ public class StudentService : IStudentService
     private readonly ICurriculaRepository _curriculaRepository;
     private readonly IProgramRepository _programRepository;
     private readonly IStudentCurriculumHistoryRepository _curriculumHistoryRepository;
+    private readonly IStudentCurriculumAssignmentService _curriculumAssignmentService;
     private readonly IMapper _mapper;
 
     public StudentService(
@@ -24,6 +25,7 @@ public class StudentService : IStudentService
         ICurriculaRepository curriculaRepository,
         IProgramRepository programRepository,
         IStudentCurriculumHistoryRepository curriculumHistoryRepository,
+        IStudentCurriculumAssignmentService curriculumAssignmentService,
         IMapper mapper)
     {
         _studentRepository = studentRepository;
@@ -31,6 +33,7 @@ public class StudentService : IStudentService
         _curriculaRepository = curriculaRepository;
         _programRepository = programRepository;
         _curriculumHistoryRepository = curriculumHistoryRepository;
+        _curriculumAssignmentService = curriculumAssignmentService;
         _mapper = mapper;
     }
 
@@ -63,6 +66,8 @@ public class StudentService : IStudentService
             throw new InvalidOperationException($"Student number '{request.StudentNumber}' already exists.");
         }
 
+        request.YearLevel = StudentYearLevelHelper.NormalizeYearTerm(request.YearLevel);
+
         var student = Student.Create(
             request.StudentNumber,
             request.FirstName,
@@ -81,6 +86,11 @@ public class StudentService : IStudentService
         );
 
         var result = await _studentRepository.CreateStudentAsync(student);
+
+        await _curriculumAssignmentService.TryAssignDefaultCurriculumForFirstYearAsync(
+            result,
+            StudentCurriculumAssignmentService.DefaultFirstYearReason);
+
         return _mapper.Map<StudentResponse>(result);
     }
 
@@ -106,6 +116,8 @@ public class StudentService : IStudentService
         {
             throw new InvalidOperationException($"Student number '{request.StudentNumber}' already exists.");
         }
+
+        request.YearLevel = StudentYearLevelHelper.NormalizeYearTerm(request.YearLevel);
 
         student.Update(
             request.StudentNumber,
@@ -251,6 +263,11 @@ public class StudentService : IStudentService
         if (curriculum == null)
         {
             throw new InvalidOperationException($"Curriculum '{code}' was not found.");
+        }
+
+        if (!CurriculumStatusHelper.IsActive(curriculum.curriculum_status))
+        {
+            throw new InvalidOperationException($"Curriculum '{code}' is inactive and cannot be assigned.");
         }
 
         var program = await _programRepository.GetProgramByCodeAsync(student.program_code);

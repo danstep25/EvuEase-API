@@ -29,6 +29,39 @@ public class SyTermController : BaseController
         }
     }
 
+    [HttpGet("current")]
+    public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _syTermService.GetCurrentSyTermAsync(cancellationToken);
+            if (data == null)
+            {
+                return NotFound("No active school year term is configured.");
+            }
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError("An error occurred while retrieving the current school year term.", ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPut("{id}/set-current")]
+    public async Task<IActionResult> SetCurrent(long id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _syTermService.SetCurrentSyTermAsync(id, cancellationToken);
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError($"An error occurred while setting school year term {id} as current.", ex.Message);
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(long id)
     {

@@ -34,6 +34,8 @@ public class AppDbContext : DbContext
     public DbSet<GradeScaleRow> GradeScaleRows { get; set; }
     public DbSet<FacultyClass> FacultyClasses { get; set; }
     public DbSet<FacultyClassEnrollment> FacultyClassEnrollments { get; set; }
+    public DbSet<CreditRequest> CreditRequests { get; set; }
+    public DbSet<CreditRequestLine> CreditRequestLines { get; set; }
     public DbSet<SyTerm> SyTerms { get; set; }
     
     public DbSet<User> Users { get; set; }

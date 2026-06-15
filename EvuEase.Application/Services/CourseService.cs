@@ -1,6 +1,8 @@
 using AutoMapper;
 using EvuEase.Application.Common;
+using EvuEase.Application.Curriculum;
 using EvuEase.Application.DTOs.Course;
+using EvuEase.Application.Interfaces.Persistence;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Application.Interfaces.Services;
 using EvuEase.Domain.Entities;
@@ -12,17 +14,20 @@ public class CourseService : ICourseService
     private readonly ICourseRepository _courseRepository;
     private readonly ICurriculaRepository _curriculaRepository;
     private readonly IProgramRepository _programRepository;
+    private readonly IApplicationUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
     public CourseService(
         ICourseRepository courseRepository,
         ICurriculaRepository curriculaRepository,
         IProgramRepository programRepository,
+        IApplicationUnitOfWork unitOfWork,
         IMapper mapper)
     {
         _courseRepository = courseRepository;
         _curriculaRepository = curriculaRepository;
         _programRepository = programRepository;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
@@ -92,8 +97,10 @@ public class CourseService : ICourseService
             courseRequest.CourseYearLevel,
             courseRequest.CourseSemester,
             courseRequest.CourseComponent,
-            courseRequest.Prerequisites,
-            courseRequest.Description
+            CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
+            courseRequest.Description,
+            courseRequest.CourseLecUnits,
+            courseRequest.CourseLabUnits
         );
 
         try
@@ -140,8 +147,10 @@ public class CourseService : ICourseService
             courseRequest.CourseYearLevel,
             courseRequest.CourseSemester,
             courseRequest.CourseComponent,
-            courseRequest.Prerequisites,
-            courseRequest.Description
+            CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
+            courseRequest.Description,
+            course.course_lec_units,
+            course.course_lab_units
         );
 
         try
@@ -163,6 +172,376 @@ public class CourseService : ICourseService
             throw new Exception($"Course with code '{courseCode}' not found.");
         }
         await _courseRepository.DeleteCourseAsync(course);
+    }
+
+    public async Task<CourseBatchImportPreviewResponse> PreviewBatchImportAsync(
+        CourseBatchImportRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var (curriculum, program, rows) = await ValidateBatchContextAsync(request, cancellationToken);
+        return await BuildBatchPreviewResponse(request, curriculum, program, rows);
+    }
+
+    public async Task<CourseBatchImportPreviewResponse> PreviewBatchPdfAsync(
+        Stream pdfStream,
+        long programId,
+        string curriculumCode,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pdfStream);
+
+        CurriculumStructurePdfParser.ParseResult parsed;
+        try
+        {
+            parsed = CurriculumStructurePdfParser.Parse(pdfStream);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Could not read the PDF. Ensure it is a valid curriculum structure PDF.", ex);
+        }
+
+        if (parsed.Rows.Count == 0)
+        {
+            var detail = parsed.Warnings.Count > 0
+                ? string.Join(" ", parsed.Warnings)
+                : parsed.UsedOcr
+                    ? "OCR could not recover course rows from this scanned PDF. Try a clearer scan or the original text-based export."
+                    : "No course rows were found in the PDF.";
+            throw new InvalidOperationException(detail);
+        }
+
+        var request = new CourseBatchImportRequest
+        {
+            ProgramId = programId,
+            CurriculumCode = curriculumCode,
+            Rows = parsed.Rows.Select(row => new CourseBatchImportRowDto
+            {
+                RowNumber = row.SourceLineNumber,
+                CourseCode = row.CourseCode,
+                CourseTitle = row.CourseTitle,
+                CourseLecUnits = row.LecUnits,
+                CourseLabUnits = row.LabUnits,
+                CourseTotalUnits = row.TotalUnits,
+                CourseYearLevel = row.YearLevel,
+                CourseSemester = row.Semester,
+                Prerequisites = row.Prerequisites,
+                CourseComponent = CourseBatchImportHelper.DeriveComponent(row.LecUnits, row.LabUnits),
+                Selected = true
+            }).ToList()
+        };
+
+        var preview = await PreviewBatchImportAsync(request, cancellationToken);
+        preview.SkippedPdfLines = parsed.SkippedLines;
+        preview.ParseWarnings = parsed.Warnings;
+        preview.DetectedReferenceNumber = parsed.Reference?.ReferenceNumber;
+
+        return preview;
+    }
+
+    public async Task<CourseBatchPdfDetectionResponse> DetectBatchPdfAsync(
+        Stream pdfStream,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pdfStream);
+
+        string text;
+        try
+        {
+            text = CurriculumStructurePdfParser.ExtractFullTextAsString(pdfStream);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Could not read the PDF. Ensure it is a valid curriculum structure PDF.", ex);
+        }
+
+        var reference = CurriculumStructurePdfParser.ExtractReferenceMetadata(text);
+        if (reference == null)
+        {
+            return new CourseBatchPdfDetectionResponse();
+        }
+
+        var response = new CourseBatchPdfDetectionResponse
+        {
+            ReferenceNumber = reference.ReferenceNumber,
+            ProgramCode = reference.ProgramCode,
+            CurriculumCode = reference.CurriculumCode,
+            SchoolYear = reference.SchoolYear
+        };
+
+        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(reference.CurriculumCode);
+        if (curriculum != null)
+        {
+            response.CurriculumFound = true;
+            response.ProgramId = curriculum.program_id;
+            return response;
+        }
+
+        var program = await _programRepository.GetProgramByCodeAsync(reference.ProgramCode);
+        if (program != null)
+        {
+            response.ProgramId = program.program_id;
+        }
+
+        return response;
+    }
+
+    public async Task<CourseBatchImportResultResponse> ImportBatchAsync(
+        CourseBatchImportRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var preview = await PreviewBatchImportAsync(request, cancellationToken);
+        var importable = preview.Rows
+            .Where(r => r.Selected && !string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (importable.Count == 0)
+        {
+            throw new InvalidOperationException("No valid rows selected for import.");
+        }
+
+        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(request.CurriculumCode.Trim());
+        if (curriculum == null)
+        {
+            throw new InvalidOperationException($"Curriculum '{request.CurriculumCode}' was not found.");
+        }
+
+        var result = new CourseBatchImportResultResponse
+        {
+            SkippedCount = preview.Rows.Count - importable.Count
+        };
+
+        await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        foreach (var row in importable)
+        {
+            var course = Course.Create(
+                row.CourseCode,
+                curriculum.id,
+                request.ProgramId,
+                row.CourseTitle,
+                row.CourseTotalUnits,
+                row.CourseYearLevel,
+                row.CourseSemester,
+                row.CourseComponent,
+                row.Prerequisites,
+                description: row.CourseTitle,
+                row.CourseLecUnits,
+                row.CourseLabUnits);
+
+            await _courseRepository.CreateCourseAsync(course);
+            result.ImportedCount++;
+        }
+
+        await tx.CommitAsync(cancellationToken);
+
+        result.Warnings.AddRange(
+            preview.Rows
+                .Where(r => r.Selected && r.Messages.Count > 0 && !string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase))
+                .SelectMany(r => r.Messages.Select(m => $"Row {r.RowNumber}: {m}")));
+
+        return result;
+    }
+
+    private async Task<(Curricula curriculum, Domain.Entities.Program program, List<CourseBatchImportPreviewRowDto> rows)> ValidateBatchContextAsync(
+        CourseBatchImportRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.ProgramId <= 0)
+        {
+            throw new InvalidOperationException("Program is required.");
+        }
+
+        var curriculumCode = request.CurriculumCode?.Trim() ?? string.Empty;
+        if (curriculumCode.Length == 0)
+        {
+            throw new InvalidOperationException("Curriculum is required.");
+        }
+
+        if (request.Rows == null || request.Rows.Count == 0)
+        {
+            throw new InvalidOperationException("At least one course row is required.");
+        }
+
+        var program = await _programRepository.GetProgramByIdAsync(request.ProgramId);
+        if (program == null)
+        {
+            throw new InvalidOperationException($"Program with ID '{request.ProgramId}' was not found.");
+        }
+
+        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(curriculumCode);
+        if (curriculum == null)
+        {
+            throw new InvalidOperationException($"Curriculum '{curriculumCode}' was not found.");
+        }
+
+        if (curriculum.program_id != request.ProgramId)
+        {
+            throw new InvalidOperationException(
+                $"Curriculum '{curriculumCode}' does not belong to the selected program.");
+        }
+
+        var rows = request.Rows
+            .Select(NormalizeBatchRow)
+            .Where(r => !CourseBatchImportHelper.IsSkippableRow(r.CourseCode, r.CourseTitle))
+            .ToList();
+
+        if (rows.Count == 0)
+        {
+            throw new InvalidOperationException("No importable course rows were found after parsing.");
+        }
+
+        return (curriculum, program, rows);
+    }
+
+    private static CourseBatchImportPreviewRowDto NormalizeBatchRow(CourseBatchImportRowDto row)
+    {
+        var lec = Math.Max(0, row.CourseLecUnits);
+        var lab = Math.Max(0, row.CourseLabUnits);
+        var total = row.CourseTotalUnits > 0 ? row.CourseTotalUnits : lec + lab;
+        var prerequisites = CourseBatchImportHelper.NormalizePrerequisites(row.Prerequisites);
+
+        return new CourseBatchImportPreviewRowDto
+        {
+            RowNumber = row.RowNumber,
+            CourseCode = row.CourseCode.Trim().ToUpperInvariant(),
+            CourseTitle = row.CourseTitle.Trim(),
+            CourseLecUnits = lec,
+            CourseLabUnits = lab,
+            CourseTotalUnits = total,
+            CourseYearLevel = CourseBatchImportHelper.NormalizeYearLevel(row.CourseYearLevel),
+            CourseSemester = CourseBatchImportHelper.NormalizeSemester(row.CourseSemester),
+            Prerequisites = prerequisites,
+            CourseComponent = row.CourseComponent?.Trim()
+                ?? CourseBatchImportHelper.DeriveComponent(lec, lab),
+            Selected = row.Selected
+        };
+    }
+
+    private async Task<CourseBatchImportPreviewResponse> BuildBatchPreviewResponse(
+        CourseBatchImportRequest request,
+        Curricula curriculum,
+        Domain.Entities.Program program,
+        List<CourseBatchImportPreviewRowDto> rows)
+    {
+        var batchCodes = rows
+            .Select(r => r.CourseCode)
+            .Where(c => c.Length > 0)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var prereqCodes = rows
+            .SelectMany(r => CourseBatchImportHelper.ParsePrerequisiteCodes(r.Prerequisites))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var lookupCodes = batchCodes.Union(prereqCodes).ToList();
+        var existingCodes = await _courseRepository.GetExistingCourseCodesAsync(lookupCodes);
+
+        var duplicateTracker = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var row in rows)
+        {
+            ValidateBatchPreviewRow(row, duplicateTracker, existingCodes, batchCodes);
+        }
+
+        return new CourseBatchImportPreviewResponse
+        {
+            CurriculumCode = curriculum.curriculum_code,
+            ProgramCode = program.program_code,
+            TotalRows = rows.Count,
+            ValidRows = rows.Count(r => string.Equals(r.Status, "Valid", StringComparison.OrdinalIgnoreCase)),
+            WarningRows = rows.Count(r => string.Equals(r.Status, "Warning", StringComparison.OrdinalIgnoreCase)),
+            ErrorRows = rows.Count(r => string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase)),
+            Rows = rows
+        };
+    }
+
+    private static void ValidateBatchPreviewRow(
+        CourseBatchImportPreviewRowDto row,
+        HashSet<string> duplicateTracker,
+        HashSet<string> existingCodes,
+        HashSet<string> batchCodes)
+    {
+        var messages = row.Messages;
+
+        if (row.CourseCode.Length == 0)
+        {
+            messages.Add("Course code is required.");
+        }
+        else if (row.CourseCode.Length > 20)
+        {
+            messages.Add("Course code must be 20 characters or fewer.");
+        }
+
+        if (row.CourseTitle.Length == 0)
+        {
+            messages.Add("Course description is required.");
+        }
+        else if (row.CourseTitle.Length > 50)
+        {
+            messages.Add("Course description must be 50 characters or fewer.");
+        }
+
+        if (row.CourseYearLevel.Length == 0)
+        {
+            messages.Add("Year level is required.");
+        }
+
+        if (row.CourseSemester.Length == 0)
+        {
+            messages.Add("Semester is required.");
+        }
+
+        if (row.CourseTotalUnits <= 0)
+        {
+            messages.Add("Total units must be greater than zero.");
+        }
+        else if (row.CourseLecUnits + row.CourseLabUnits > 0
+                 && row.CourseTotalUnits != row.CourseLecUnits + row.CourseLabUnits)
+        {
+            messages.Add("Total units does not match LEC + LAB.");
+        }
+
+        if (row.Prerequisites != null && row.Prerequisites.Length > 200)
+        {
+            messages.Add("Pre-requisites exceed the maximum length.");
+        }
+
+        if (row.CourseCode.Length > 0)
+        {
+            if (!duplicateTracker.Add(row.CourseCode))
+            {
+                messages.Add($"Duplicate course code in file: {row.CourseCode}.");
+            }
+
+            if (existingCodes.Contains(row.CourseCode))
+            {
+                messages.Add($"Course code '{row.CourseCode}' already exists.");
+            }
+        }
+
+        foreach (var prereq in CourseBatchImportHelper.ParsePrerequisiteCodes(row.Prerequisites))
+        {
+            if (string.Equals(prereq, row.CourseCode, StringComparison.OrdinalIgnoreCase))
+            {
+                messages.Add($"Course cannot list itself as a pre-requisite ({prereq}).");
+                continue;
+            }
+
+            if (!batchCodes.Contains(prereq) && !existingCodes.Contains(prereq))
+            {
+                messages.Add($"Pre-requisite '{prereq}' was not found in this file or existing courses.");
+            }
+        }
+
+        row.Status = messages.Any(m => m.Contains("required", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("already exists", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("Duplicate", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("must be", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("cannot list", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                                         || m.Contains("exceed", StringComparison.OrdinalIgnoreCase))
+            ? "Error"
+            : messages.Count > 0
+                ? "Warning"
+                : "Valid";
     }
 
     private async Task<CourseResponse> MapCourseToResponse(Course course)

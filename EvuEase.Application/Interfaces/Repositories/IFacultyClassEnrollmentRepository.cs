@@ -30,5 +30,10 @@ public interface IFacultyClassEnrollmentRepository
         long studentId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> StudentHasCourseEnrollmentAsync(
+        long studentId,
+        string courseCode,
+        CancellationToken cancellationToken = default);
+
     Task<bool> RemoveEnrollmentAsync(long facultyClassId, long enrollmentId, CancellationToken cancellationToken = default);
 }

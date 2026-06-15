@@ -53,6 +53,13 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
             query = query.Where(c => c.curriculum_status.ToLower() == curriculaRequest.Status.ToLower());
         }
 
+        if (string.IsNullOrWhiteSpace(curriculaRequest.SortKey))
+        {
+            query = query
+                .OrderByDescending(c => c.effective_date)
+                .ThenBy(c => c.curriculum_status);
+        }
+
         return await query.PaginateAsync(
             curriculaRequest.PageIndex,
             curriculaRequest.PageSize,
@@ -69,6 +76,19 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
     public async Task<Curricula?> GetCurriculaByCodeAsync(string curriculumCode)
     {
         return await GetAll().FirstOrDefaultAsync(c => c.curriculum_code == curriculumCode);
+    }
+
+    public async Task<Curricula?> GetMostRecentActiveForProgramAsync(
+        long programId,
+        CancellationToken cancellationToken = default)
+    {
+        return await GetAll()
+            .Where(c =>
+                c.program_id == programId &&
+                c.curriculum_status.ToLower() == "active")
+            .OrderByDescending(c => c.effective_date)
+            .ThenByDescending(c => c.id)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Curricula> CreateCurriculaAsync(Curricula curricula)
@@ -91,13 +111,18 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
         await SaveChangesAsync();
     }
 
-    public async Task<List<LookupItem>> GetLookupItemsAsync(long? programId = null)
+    public async Task<List<LookupItem>> GetLookupItemsAsync(long? programId = null, bool activeOnly = false)
     {
         var query = GetAll();
 
         if (programId.HasValue)
         {
             query = query.Where(c => c.program_id == programId.Value);
+        }
+
+        if (activeOnly)
+        {
+            query = query.Where(c => c.curriculum_status.ToLower() == CurriculumStatusHelper.Active.ToLower());
         }
 
         return await query
@@ -111,15 +136,22 @@ public class CurriculaRepository : BaseRepository<Curricula>, ICurriculaReposito
             .ToListAsync();
     }
 
-    public async Task<List<LookupItem>> GetCurriculumVersionsByProgramCodeAsync(string programCode)
+    public async Task<List<LookupItem>> GetCurriculumVersionsByProgramCodeAsync(string programCode, bool activeOnly = false)
     {
         if (string.IsNullOrWhiteSpace(programCode))
         {
             return new List<LookupItem>();
         }
 
-        return await GetAll()
-            .Where(c => c.curriculum_code.StartsWith(programCode + "-"))
+        var query = GetAll()
+            .Where(c => c.curriculum_code.StartsWith(programCode + "-"));
+
+        if (activeOnly)
+        {
+            query = query.Where(c => c.curriculum_status.ToLower() == CurriculumStatusHelper.Active.ToLower());
+        }
+
+        return await query
             .Select(c => new LookupItem
             {
                 Id = c.id,

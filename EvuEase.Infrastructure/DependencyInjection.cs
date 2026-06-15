@@ -1,8 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using EvuEase.Application.Interfaces.Persistence;
 using EvuEase.Application.Interfaces.Repositories;
+using EvuEase.Application.Interfaces.Services;
 using EvuEase.Infrastructure.Persistence;
 using EvuEase.Infrastructure.Repositories;
+using EvuEase.Infrastructure.Storage;
 
 namespace EvuEase.Infrastructure
 {
@@ -27,6 +29,9 @@ namespace EvuEase.Infrastructure
             services.AddScoped<IGradeScaleRowRepository, GradeScaleRowRepository>();
             services.AddScoped<IFacultyClassRepository, FacultyClassRepository>();
             services.AddScoped<IFacultyClassEnrollmentRepository, FacultyClassEnrollmentRepository>();
+            services.AddScoped<ICreditRequestRepository, CreditRequestRepository>();
+            services.AddScoped<ICreditRequestLineRepository, CreditRequestLineRepository>();
+            services.AddScoped<ICreditRequestSignedDocumentStore, CreditRequestSignedDocumentStore>();
             services.AddScoped<IArchiveRepository, ArchiveRepository>();
             services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 

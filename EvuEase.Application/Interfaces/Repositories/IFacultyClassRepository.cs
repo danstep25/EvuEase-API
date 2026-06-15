@@ -25,4 +25,16 @@ public interface IFacultyClassRepository
 
     
     Task<int> CountActiveByProgramCodeAsync(string programCode, CancellationToken cancellationToken = default);
+
+  Task<bool> ExistsByClassNumberAndTermKeysAsync(
+      string classNumber,
+      IReadOnlyList<string> academicTermKeys,
+      long? excludeId = null,
+      CancellationToken cancellationToken = default);
+
+    Task<FacultyClass?> FindByCourseClassNumberAndTermAsync(
+        string courseCode,
+        string classNumber,
+        IReadOnlyList<string> academicTermKeys,
+        CancellationToken cancellationToken = default);
 }

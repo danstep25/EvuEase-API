@@ -8,8 +8,8 @@ public interface ILookupService
     Task<List<LookupResponse>> GetModuleLookupAsync();
     Task<List<LookupResponse>> GetProgramsLookupAsync();
     Task<List<LookupResponse>> GetSyTermsLookupAsync();
-    Task<List<LookupResponse>> GetCurriculaLookupAsync(long? programId = null);
-    Task<List<LookupResponse>> GetCurriculumVersionsLookupAsync(string programCode);
+    Task<List<LookupResponse>> GetCurriculaLookupAsync(long? programId = null, bool activeOnly = false);
+    Task<List<LookupResponse>> GetCurriculumVersionsLookupAsync(string programCode, bool activeOnly = false);
     Task<List<LookupResponse>> GetCoursesLookupAsync();
 
     

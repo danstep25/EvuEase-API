@@ -98,11 +98,11 @@ public class LookupService : ILookupService
         }
     }
 
-    public async Task<List<LookupResponse>> GetCurriculaLookupAsync(long? programId = null)
+    public async Task<List<LookupResponse>> GetCurriculaLookupAsync(long? programId = null, bool activeOnly = false)
     {
         try
         {
-            var lookupItems = await _curriculaRepository.GetLookupItemsAsync(programId);
+            var lookupItems = await _curriculaRepository.GetLookupItemsAsync(programId, activeOnly);
 
             return lookupItems.Select(item => new LookupResponse
             {
@@ -117,7 +117,7 @@ public class LookupService : ILookupService
         }
     }
 
-    public async Task<List<LookupResponse>> GetCurriculumVersionsLookupAsync(string programCode)
+    public async Task<List<LookupResponse>> GetCurriculumVersionsLookupAsync(string programCode, bool activeOnly = false)
     {
         try
         {
@@ -126,7 +126,7 @@ public class LookupService : ILookupService
                 return new List<LookupResponse>();
             }
 
-            var lookupItems = await _curriculaRepository.GetCurriculumVersionsByProgramCodeAsync(programCode);
+            var lookupItems = await _curriculaRepository.GetCurriculumVersionsByProgramCodeAsync(programCode, activeOnly);
 
             return lookupItems.Select(item => new LookupResponse
             {

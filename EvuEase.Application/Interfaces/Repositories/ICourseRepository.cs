@@ -13,6 +13,9 @@ public interface ICourseRepository
     Task<Course> UpdateCourseAsync(Course course);
     Task DeleteCourseAsync(Course course);
     Task<List<LookupItem>> GetLookupItemsAsync();
+    Task<HashSet<string>> GetExistingCourseCodesAsync(
+        IEnumerable<string> courseCodes,
+        CancellationToken cancellationToken = default);
 
     
     Task SoftDeleteAllForProgramAsync(long programId, CancellationToken cancellationToken = default);

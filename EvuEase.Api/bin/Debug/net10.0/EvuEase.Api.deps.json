@@ -482,6 +482,14 @@
           }
         }
       },
+      "Tesseract/5.2.0": {
+        "runtime": {
+          "lib/netstandard2.0/Tesseract.dll": {
+            "assemblyVersion": "5.2.0.0",
+            "fileVersion": "5.2.0.0"
+          }
+        }
+      },
       "EvuEase.Application/1.0.0": {
         "dependencies": {
           "AutoMapper": "12.0.1",
@@ -490,7 +498,8 @@
           "EvuEase.Domain": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.1",
           "PdfPig": "0.1.9",
-          "System.IdentityModel.Tokens.Jwt": "8.2.1"
+          "System.IdentityModel.Tokens.Jwt": "8.2.1",
+          "Tesseract": "5.2.0"
         },
         "runtime": {
           "EvuEase.Application.dll": {
@@ -787,6 +796,13 @@
       "sha512": "sha512-o94k2RKuAce3GeDMlUvIXlhVa1kWpJw95E6C9LwW0KlG0nj5+SgCiIxJ2Eroqb9sLtG1mEMbFttZIBZ13EJPvQ==",
       "path": "system.security.cryptography.protecteddata/9.0.4",
       "hashPath": "system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
+    },
+    "Tesseract/5.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YB7feJlrTWSXtK8+WaCcseGSPK/1r2d2FWeKGyndlrPwYClrzTlCoHD4/oQEUjKafmpkWlhTZZ7pxiRJYZgj6w==",
+      "path": "tesseract/5.2.0",
+      "hashPath": "tesseract.5.2.0.nupkg.sha512"
     },
     "EvuEase.Application/1.0.0": {
       "type": "project",

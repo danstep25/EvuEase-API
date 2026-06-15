@@ -30,8 +30,10 @@ public static class DependencyInjection
         services.AddScoped<IMiscellaneousFeeService, MiscellaneousFeeService>();
         services.AddScoped<IDownpaymentService, DownpaymentService>();
         services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IStudentCurriculumAssignmentService, StudentCurriculumAssignmentService>();
         services.AddScoped<IClassAssignmentService, ClassAssignmentService>();
         services.AddScoped<IClassRosterService, ClassRosterService>();
+        services.AddScoped<ICreditRequestService, CreditRequestService>();
         services.AddScoped<IArchiveService, ArchiveService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
 

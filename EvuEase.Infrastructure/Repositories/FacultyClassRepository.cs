@@ -88,6 +88,61 @@ public class FacultyClassRepository : BaseRepository<FacultyClass>, IFacultyClas
             .CountAsync(cancellationToken);
     }
 
+    public async Task<bool> ExistsByClassNumberAndTermKeysAsync(
+        string classNumber,
+        IReadOnlyList<string> academicTermKeys,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (academicTermKeys == null || academicTermKeys.Count == 0)
+        {
+            return false;
+        }
+
+        var normalizedClassNumber = classNumber.Trim().ToLower();
+        if (string.IsNullOrEmpty(normalizedClassNumber))
+        {
+            return false;
+        }
+
+        var query = GetAll().Where(e =>
+            e.class_number.ToLower() == normalizedClassNumber &&
+            academicTermKeys.Contains(e.academic_term));
+
+        if (excludeId.HasValue)
+        {
+            query = query.Where(e => e.id != excludeId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<FacultyClass?> FindByCourseClassNumberAndTermAsync(
+        string courseCode,
+        string classNumber,
+        IReadOnlyList<string> academicTermKeys,
+        CancellationToken cancellationToken = default)
+    {
+        if (academicTermKeys == null || academicTermKeys.Count == 0)
+        {
+            return null;
+        }
+
+        var normalizedCourse = courseCode.Trim().ToLower();
+        var normalizedClassNumber = classNumber.Trim().ToLower();
+        if (string.IsNullOrEmpty(normalizedCourse) || string.IsNullOrEmpty(normalizedClassNumber))
+        {
+            return null;
+        }
+
+        return await GetAll()
+            .FirstOrDefaultAsync(
+                e => e.course_code.ToLower() == normalizedCourse
+                     && e.class_number.ToLower() == normalizedClassNumber
+                     && academicTermKeys.Contains(e.academic_term),
+                cancellationToken);
+    }
+
     public async Task UpdateEnrolledCountAsync(long id, int count, CancellationToken cancellationToken = default)
     {
         var entity = await GetByIdAsync(id, cancellationToken);

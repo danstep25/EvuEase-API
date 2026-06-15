@@ -14,6 +14,10 @@ C:\Client\EvuEase\EvuEase.Application\obj\Debug\net10.0\EvuEase.Application.dll
 C:\Client\EvuEase\EvuEase.Application\obj\Debug\net10.0\refint\EvuEase.Application.dll
 C:\Client\EvuEase\EvuEase.Application\obj\Debug\net10.0\EvuEase.Application.pdb
 C:\Client\EvuEase\EvuEase.Application\obj\Debug\net10.0\ref\EvuEase.Application.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\x86\leptonica-1.82.0.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\x86\tesseract50.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\x64\leptonica-1.82.0.dll
+C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\x64\tesseract50.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\EvuEase.Application.deps.json
 C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\EvuEase.Application.dll
 C:\Client\EvuEase\EvuEase-API\EvuEase.Application\bin\Debug\net10.0\EvuEase.Application.pdb
