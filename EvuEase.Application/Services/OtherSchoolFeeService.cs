@@ -39,6 +39,8 @@ public class OtherSchoolFeeService : IOtherSchoolFeeService
 
     public async Task<OtherSchoolFeeResponse> CreateOtherSchoolFeeAsync(CreateOtherSchoolFeeRequest request)
     {
+        FeeChargeAmountValidation.EnsureFeeAmounts(request.Cash, request.LowMonthlyPayment);
+
         var fee = OtherSchoolFee.Create(
             request.SyId,
             request.Batch,
@@ -59,6 +61,8 @@ public class OtherSchoolFeeService : IOtherSchoolFeeService
         {
             throw new Exception($"Other school fee with ID '{request.Id}' not found.");
         }
+
+        FeeChargeAmountValidation.EnsureFeeAmounts(request.Cash, request.LowMonthlyPayment);
 
         fee.Update(
             request.SyId,

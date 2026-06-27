@@ -100,7 +100,8 @@ public class ProgramRepository : BaseRepository<Program>, IProgramRepository
             {
                 Id = p.program_id,
                 Value = p.program_code,
-                DisplayText = $"{p.program_code} - {p.program_title}"
+                DisplayText = $"{p.program_code} - {p.program_title}",
+                NumericValue = p.program_completionyears
             })
             .OrderBy(p => p.Value)
             .ToListAsync();

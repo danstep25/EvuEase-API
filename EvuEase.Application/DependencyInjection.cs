@@ -29,7 +29,9 @@ public static class DependencyInjection
         services.AddScoped<IOtherSchoolFeeService, OtherSchoolFeeService>();
         services.AddScoped<IMiscellaneousFeeService, MiscellaneousFeeService>();
         services.AddScoped<IDownpaymentService, DownpaymentService>();
+        services.AddScoped<IPaymentSchemeService, PaymentSchemeService>();
         services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IStudentPortalService, StudentPortalService>();
         services.AddScoped<IStudentCurriculumAssignmentService, StudentCurriculumAssignmentService>();
         services.AddScoped<IClassAssignmentService, ClassAssignmentService>();
         services.AddScoped<IClassRosterService, ClassRosterService>();

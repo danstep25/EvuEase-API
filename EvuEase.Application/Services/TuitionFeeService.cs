@@ -44,6 +44,8 @@ public class TuitionFeeService : ITuitionFeeService
 
     public async Task<TuitionFeeResponse> CreateTuitionFeeAsync(CreateTuitionFeeRequest tuitionFeeRequest)
     {
+        FeeChargeAmountValidation.EnsureFeeAmounts(tuitionFeeRequest.Cash, tuitionFeeRequest.LowMonthlyPayment);
+
         var tuitionFee = TuitionFee.Create(
             tuitionFeeRequest.SyId,
             tuitionFeeRequest.Batch,
@@ -74,6 +76,8 @@ public class TuitionFeeService : ITuitionFeeService
         {
             throw new Exception($"Tuition fee with ID '{tuitionFeeRequest.Id}' not found.");
         }
+
+        FeeChargeAmountValidation.EnsureFeeAmounts(tuitionFeeRequest.Cash, tuitionFeeRequest.LowMonthlyPayment);
 
         tuitionFee.Update(
             tuitionFeeRequest.SyId,

@@ -21,10 +21,13 @@ public class AppDbContext : DbContext
     public DbSet<ClassRoster> ClassRosters { get; set; }
     public DbSet<Curricula> Curricula { get; set; }
     public DbSet<DpPercentage> DpPercentages { get; set; }
+    public DbSet<PaymentScheme> PaymentSchemes { get; set; }
+    public DbSet<PaymentSchemeInstallment> PaymentSchemeInstallments { get; set; }
     public DbSet<GradeRoster> GradeRosters { get; set; }
     public DbSet<MiscellaneousFee> MiscellaneousFees { get; set; }
     public DbSet<OtherSchoolFee> OtherSchoolFees { get; set; }
     public DbSet<Student> Students { get; set; }
+    public DbSet<StudentPortalPasswordResetRequest> StudentPortalPasswordResetRequests { get; set; }
     public DbSet<StudentCurriculumHistory> StudentCurriculumHistories { get; set; }
     public DbSet<TuitionFee> TuitionFees { get; set; }
     

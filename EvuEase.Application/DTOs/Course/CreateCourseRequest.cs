@@ -14,6 +14,8 @@ public class CreateCourseRequest
     public string? CourseComponent { get; set; }
     public string? Prerequisites { get; set; }
     public string? Description { get; set; }
+    public bool? IsElectiveSlot { get; set; }
+    public bool? IsElectiveOption { get; set; }
 }
 
 

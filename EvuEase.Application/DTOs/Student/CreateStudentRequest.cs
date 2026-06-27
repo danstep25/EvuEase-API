@@ -16,4 +16,5 @@ public class CreateStudentRequest
     public string? Email { get; set; }
     public string? Gender { get; set; }
     public DateOnly? Birthdate { get; set; }
+    public string? PortalPassword { get; set; }
 }

@@ -23,7 +23,9 @@ namespace EvuEase.Infrastructure
             services.AddScoped<IOtherSchoolFeeRepository, OtherSchoolFeeRepository>();
             services.AddScoped<IMiscellaneousFeeRepository, MiscellaneousFeeRepository>();
             services.AddScoped<IDownpaymentRepository, DownpaymentRepository>();
+            services.AddScoped<IPaymentSchemeRepository, PaymentSchemeRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IStudentPortalPasswordResetRepository, StudentPortalPasswordResetRepository>();
             services.AddScoped<IStudentCurriculumHistoryRepository, StudentCurriculumHistoryRepository>();
             services.AddScoped<IGradingSchemeBasisRepository, GradingSchemeBasisRepository>();
             services.AddScoped<IGradeScaleRowRepository, GradeScaleRowRepository>();

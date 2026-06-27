@@ -17,6 +17,8 @@ public class CourseResponse
     public string? Prerequisites { get; set; }
     public string? Description { get; set; }
     public int CourseHasPrerequisites { get; set; }
+    public bool IsElectiveSlot { get; set; }
+    public bool IsElectiveOption { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

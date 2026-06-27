@@ -1,0 +1,100 @@
+using EvuEase.Application.Curriculum;
+using System.Text.RegularExpressions;
+
+var pdfPath = args.Length > 0
+    ? args[0]
+    : @"C:\Users\valer\Downloads\Omnibus Contents Noted of BSCS-24-01_CHED III.pdf";
+
+if (!File.Exists(pdfPath))
+{
+    Console.Error.WriteLine($"PDF not found: {pdfPath}");
+    return 1;
+}
+
+Console.WriteLine($"OCR available: {CurriculumPdfOcrTextExtractor.IsAvailable()}");
+Console.WriteLine($"Tess path: {CurriculumPdfOcrTextExtractor.ResolveTessDataPath() ?? "(none)"}");
+
+using (var doc = UglyToad.PdfPig.PdfDocument.Open(pdfPath))
+{
+    Console.WriteLine($"Pages: {doc.NumberOfPages}");
+    for (var i = 1; i <= doc.NumberOfPages; i++)
+    {
+        var page = doc.GetPage(i);
+        var ordered = UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor.ContentOrderTextExtractor.GetText(page) ?? "";
+        var plain = page.Text ?? "";
+        var images = page.GetImages().Count();
+        Console.WriteLine($"Page {i}: ordered={ordered.Length} chars, plain={plain.Length} chars, images={images}");
+    }
+}
+
+await using var stream = File.OpenRead(pdfPath);
+var extraction = CurriculumStructurePdfParser.ExtractFullText(stream);
+var parsed = CurriculumStructurePdfParser.ParseText(extraction.Text);
+
+Console.WriteLine($"UsedOcr: {extraction.UsedOcr}");
+Console.WriteLine($"Text length: {extraction.Text.Length}");
+Console.WriteLine($"Parsed rows: {parsed.Rows.Count}");
+Console.WriteLine($"Skipped lines: {parsed.SkippedLines}");
+Console.WriteLine($"Warnings: {parsed.Warnings.Count}");
+Console.WriteLine();
+
+foreach (var w in parsed.Warnings.Take(40))
+{
+    Console.WriteLine($"WARN: {w}");
+}
+
+if (parsed.Warnings.Count > 40)
+{
+    Console.WriteLine($"... and {parsed.Warnings.Count - 40} more warnings");
+}
+
+Console.WriteLine();
+Console.WriteLine("=== Parsed courses by year/sem ===");
+foreach (var group in parsed.Rows.GroupBy(r => $"{r.YearLevel}|{r.Semester}").OrderBy(g => g.Key))
+{
+    Console.WriteLine($"{group.Key}: {group.Count()} courses");
+    foreach (var row in group)
+    {
+        Console.WriteLine($"  {row.CourseCode} | {row.CourseTitle} | L{row.LecUnits} B{row.LabUnits} T{row.TotalUnits} | pre: {row.Prerequisites ?? "None"}");
+    }
+}
+
+Console.WriteLine();
+Console.WriteLine("=== Sample raw lines with course-like codes but not parsed ===");
+var codeStart = new Regex(@"^[A-Z]{2,12}\d{3,4}\b", RegexOptions.CultureInvariant);
+var yearTerm = new Regex(@"(First|Second|Third|Fourth|Fifth)\s+Year|1st\s+Semester|2nd\s+Semester", RegexOptions.IgnoreCase);
+var lineNo = 0;
+var unparsed = new List<string>();
+foreach (var raw in extraction.Text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+{
+    lineNo++;
+    var line = raw.Trim();
+    if (line.Length == 0) continue;
+    if (codeStart.IsMatch(line) && !parsed.Rows.Any(r => line.StartsWith(r.CourseCode, StringComparison.OrdinalIgnoreCase)))
+    {
+        unparsed.Add($"L{lineNo}: {line}");
+    }
+    else if (yearTerm.IsMatch(line))
+    {
+        unparsed.Add($"L{lineNo} [HEADER?]: {line}");
+    }
+}
+
+foreach (var u in unparsed.Take(60))
+{
+    Console.WriteLine(u);
+}
+
+Console.WriteLine();
+Console.WriteLine("=== First 80 lines of extracted text ===");
+lineNo = 0;
+foreach (var raw in extraction.Text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+{
+    if (++lineNo > 80) break;
+    if (!string.IsNullOrWhiteSpace(raw))
+    {
+        Console.WriteLine($"{lineNo,4}: {raw.Trim()}");
+    }
+}
+
+return 0;

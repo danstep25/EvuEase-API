@@ -1033,6 +1033,20 @@
             }
           },
           {
+            "name": "IsElectiveSlot",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsElectiveOption",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -2623,6 +2637,199 @@
         }
       }
     },
+    "/api/PaymentScheme": {
+      "get": {
+        "tags": [
+          "PaymentScheme"
+        ],
+        "parameters": [
+          {
+            "name": "SchoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Semester",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchTerm",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PaymentScheme/{id}": {
+      "get": {
+        "tags": [
+          "PaymentScheme"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "PaymentScheme"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePaymentSchemeRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePaymentSchemeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePaymentSchemeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "PaymentScheme"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PaymentScheme/new": {
+      "post": {
+        "tags": [
+          "PaymentScheme"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentSchemeRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentSchemeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentSchemeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Program": {
       "get": {
         "tags": [
@@ -3119,6 +3326,259 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateStudentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/Login": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalLoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalLoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/password-reset-request": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/Me": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/dashboard": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/enrollments": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/pending-subjects": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/change-password": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/password-reset-requests": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/password-reset-requests/{id}/resolve": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/password-reset-requests/{id}/reject": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetRejectRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetRejectRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalPasswordResetRejectRequest"
               }
             }
           },
@@ -4142,6 +4602,18 @@
               "null",
               "string"
             ]
+          },
+          "isElectiveSlot": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "isElectiveOption": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -4393,6 +4865,35 @@
           }
         }
       },
+      "CreatePaymentSchemeRequest": {
+        "type": "object",
+        "properties": {
+          "schoolYear": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "semester": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentSchemeInstallmentInputDto"
+            }
+          }
+        }
+      },
       "CreateProgramRequest": {
         "type": "object",
         "properties": {
@@ -4487,6 +4988,12 @@
               "string"
             ],
             "format": "date"
+          },
+          "portalPassword": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -4671,6 +5178,21 @@
           }
         }
       },
+      "PaymentSchemeInstallmentInputDto": {
+        "type": "object",
+        "properties": {
+          "paymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "RegisterRequest": {
         "type": "object",
         "properties": {
@@ -4723,6 +5245,67 @@
       "Status": {
         "type": "integer"
       },
+      "StudentPortalChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "StudentPortalLoginRequest": {
+        "type": "object",
+        "properties": {
+          "studentNumber": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "StudentPortalPasswordResetCreateRequest": {
+        "type": "object",
+        "properties": {
+          "studentNumber": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "StudentPortalPasswordResetRejectRequest": {
+        "type": "object",
+        "properties": {
+          "registrarNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "StudentPortalPasswordResetResolveRequest": {
+        "type": "object",
+        "properties": {
+          "newPortalPassword": {
+            "type": "string"
+          },
+          "registrarNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "UpdateCourseRequest": {
         "type": "object",
         "properties": {
@@ -4773,6 +5356,18 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "isElectiveSlot": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "isElectiveOption": {
+            "type": [
+              "null",
+              "boolean"
             ]
           }
         }
@@ -5013,6 +5608,43 @@
           }
         }
       },
+      "UpdatePaymentSchemeRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "schoolYear": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "semester": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentSchemeInstallmentInputDto"
+            }
+          }
+        }
+      },
       "UpdateProgramRequest": {
         "type": "object",
         "properties": {
@@ -5123,6 +5755,12 @@
               "string"
             ],
             "format": "date"
+          },
+          "portalPassword": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -5312,10 +5950,16 @@
       "name": "OtherSchoolFees"
     },
     {
+      "name": "PaymentScheme"
+    },
+    {
       "name": "Program"
     },
     {
       "name": "Student"
+    },
+    {
+      "name": "StudentPortal"
     },
     {
       "name": "SystemLog"

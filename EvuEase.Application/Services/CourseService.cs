@@ -88,6 +88,14 @@ public class CourseService : ICourseService
             throw new Exception($"Curriculum '{courseRequest.CurriculumCode}' does not belong to program ID '{courseRequest.ProgramId}'.");
         }
 
+        var isElectiveSlot = ElectiveSubjectHelper.ResolveIsElectiveSlot(
+            courseRequest.CourseTitle,
+            courseRequest.CourseCode,
+            courseRequest.IsElectiveSlot);
+        var isElectiveOption = ElectiveSubjectHelper.ResolveIsElectiveOption(
+            isElectiveSlot,
+            courseRequest.IsElectiveOption);
+
         var course = Course.Create(
             courseRequest.CourseCode,
             curriculum.id,
@@ -100,7 +108,9 @@ public class CourseService : ICourseService
             CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
             courseRequest.Description,
             courseRequest.CourseLecUnits,
-            courseRequest.CourseLabUnits
+            courseRequest.CourseLabUnits,
+            isElectiveSlot,
+            isElectiveOption
         );
 
         try
@@ -139,6 +149,14 @@ public class CourseService : ICourseService
             throw new Exception($"Curriculum '{courseRequest.CurriculumCode}' does not belong to program ID '{courseRequest.ProgramId}'.");
         }
 
+        var isElectiveSlot = ElectiveSubjectHelper.ResolveIsElectiveSlot(
+            courseRequest.CourseTitle,
+            course.course_code,
+            courseRequest.IsElectiveSlot);
+        var isElectiveOption = ElectiveSubjectHelper.ResolveIsElectiveOption(
+            isElectiveSlot,
+            courseRequest.IsElectiveOption);
+
         course.Update(
             curriculum.id,
             courseRequest.ProgramId,
@@ -150,7 +168,9 @@ public class CourseService : ICourseService
             CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
             courseRequest.Description,
             course.course_lec_units,
-            course.course_lab_units
+            course.course_lab_units,
+            isElectiveSlot,
+            isElectiveOption
         );
 
         try
@@ -313,6 +333,7 @@ public class CourseService : ICourseService
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         foreach (var row in importable)
         {
+            var isElectiveSlot = ElectiveSubjectHelper.IsElectiveSlot(row.CourseTitle, row.CourseCode);
             var course = Course.Create(
                 row.CourseCode,
                 curriculum.id,
@@ -325,7 +346,9 @@ public class CourseService : ICourseService
                 row.Prerequisites,
                 description: row.CourseTitle,
                 row.CourseLecUnits,
-                row.CourseLabUnits);
+                row.CourseLabUnits,
+                isElectiveSlot,
+                isElectiveOption: false);
 
             await _courseRepository.CreateCourseAsync(course);
             result.ImportedCount++;
@@ -412,6 +435,7 @@ public class CourseService : ICourseService
             Prerequisites = prerequisites,
             CourseComponent = row.CourseComponent?.Trim()
                 ?? CourseBatchImportHelper.DeriveComponent(lec, lab),
+            IsElectiveSlot = ElectiveSubjectHelper.IsElectiveSlot(row.CourseTitle, row.CourseCode),
             Selected = row.Selected
         };
     }
@@ -560,6 +584,8 @@ public class CourseService : ICourseService
             Prerequisites = course.prerequisites,
             Description = course.description,
             CourseHasPrerequisites = course.course_has_prerequities,
+            IsElectiveSlot = course.is_elective_slot,
+            IsElectiveOption = course.is_elective_option,
             Status = course.status ? "Active" : "Inactive",
             CreatedAt = course.created_at,
             UpdatedAt = course.updated_at

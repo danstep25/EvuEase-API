@@ -89,6 +89,16 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
             }
         }
 
+        if (courseRequest.IsElectiveSlot.HasValue)
+        {
+            query = query.Where(c => c.is_elective_slot == courseRequest.IsElectiveSlot.Value);
+        }
+
+        if (courseRequest.IsElectiveOption.HasValue)
+        {
+            query = query.Where(c => c.is_elective_option == courseRequest.IsElectiveOption.Value);
+        }
+
         return await query.PaginateAsync(
             courseRequest.PageIndex,
             courseRequest.PageSize,

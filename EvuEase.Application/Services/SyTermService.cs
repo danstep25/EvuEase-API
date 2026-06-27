@@ -55,6 +55,12 @@ public class SyTermService : ISyTermService
             syTermRequest.SyStatus
         );
         var result = await _syTermRepository.CreateSyTermAsync(syTerm);
+
+        if (IsActiveStatus(syTermRequest.SyStatus))
+        {
+            result = await _syTermRepository.SetCurrentSyTermAsync(result.sy_id);
+        }
+
         return _mapper.Map<SyTermResponse>(result);
     }
 
@@ -79,8 +85,17 @@ public class SyTermService : ISyTermService
         );
 
         var result = await _syTermRepository.UpdateSyTermAsync(syTerm);
+
+        if (IsActiveStatus(syTermRequest.SyStatus))
+        {
+            result = await _syTermRepository.SetCurrentSyTermAsync(syTermRequest.SyId);
+        }
+
         return _mapper.Map<SyTermResponse>(result);
     }
+
+    private static bool IsActiveStatus(string status) =>
+        string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase);
 
     public async Task DeleteSyTermAsync(long id)
     {

@@ -12,6 +12,8 @@ public sealed class CourseBatchImportPreviewRowDto
     public string CourseSemester { get; set; } = string.Empty;
     public string? Prerequisites { get; set; }
     public string? CourseComponent { get; set; }
+    public bool IsElectiveSlot { get; set; }
+    public bool IsElectiveOption { get; set; }
     public bool Selected { get; set; } = true;
     public string Status { get; set; } = "Valid";
     public List<string> Messages { get; set; } = new();

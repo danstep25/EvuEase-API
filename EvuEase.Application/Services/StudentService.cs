@@ -87,6 +87,8 @@ public class StudentService : IStudentService
 
         var result = await _studentRepository.CreateStudentAsync(student);
 
+        await ApplyPortalPasswordIfProvided(result, request.PortalPassword);
+
         await _curriculumAssignmentService.TryAssignDefaultCurriculumForFirstYearAsync(
             result,
             StudentCurriculumAssignmentService.DefaultFirstYearReason);
@@ -137,7 +139,30 @@ public class StudentService : IStudentService
         );
 
         var result = await _studentRepository.UpdateStudentAsync(student);
+        await ApplyPortalPasswordIfProvided(result, request.PortalPassword);
         return _mapper.Map<StudentResponse>(result);
+    }
+
+    private async Task ApplyPortalPasswordIfProvided(Student student, string? portalPassword)
+    {
+        if (portalPassword == null)
+        {
+            return;
+        }
+
+        var trimmed = portalPassword.Trim();
+        if (trimmed.Length == 0)
+        {
+            return;
+        }
+
+        if (trimmed.Length < 6)
+        {
+            throw new InvalidOperationException("Portal password must be at least 6 characters.");
+        }
+
+        student.SetPortalPasswordHash(PortalPasswordHelper.Hash(trimmed));
+        await _studentRepository.UpdateStudentAsync(student);
     }
 
     private static string? NormalizeOptional(string? value)

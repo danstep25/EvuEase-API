@@ -25,6 +25,7 @@ public class StudentMappingProfile : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.email))
             .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.gender))
             .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => src.birthdate))
+            .ForMember(dest => dest.HasPortalAccess, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.portal_password_hash)))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.created_at))
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.updated_at));
     }

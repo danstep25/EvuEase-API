@@ -39,6 +39,8 @@ public class MiscellaneousFeeService : IMiscellaneousFeeService
 
     public async Task<MiscellaneousFeeResponse> CreateMiscellaneousFeeAsync(CreateMiscellaneousFeeRequest request)
     {
+        FeeChargeAmountValidation.EnsureFeeAmounts(request.Cash, request.LowMonthlyPayment);
+
         var fee = MiscellaneousFee.Create(
             request.SyId,
             request.Batch,
@@ -59,6 +61,8 @@ public class MiscellaneousFeeService : IMiscellaneousFeeService
         {
             throw new Exception($"Miscellaneous fee with ID '{request.Id}' not found.");
         }
+
+        FeeChargeAmountValidation.EnsureFeeAmounts(request.Cash, request.LowMonthlyPayment);
 
         fee.Update(
             request.SyId,

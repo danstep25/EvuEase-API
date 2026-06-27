@@ -18,6 +18,7 @@ public class Student : BaseEntity
     public string? email { get; private set; }
     public string? gender { get; private set; }
     public DateOnly? birthdate { get; private set; }
+    public string? portal_password_hash { get; private set; }
 
     private Student() { }
 
@@ -98,6 +99,15 @@ public class Student : BaseEntity
     {
         var type = typeof(Student);
         type.GetProperty(nameof(curriculum_code))?.SetValue(this, curriculumCode.Trim());
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.UtcNow);
+    }
+
+    public bool HasPortalAccess() => !string.IsNullOrWhiteSpace(portal_password_hash);
+
+    public void SetPortalPasswordHash(string? passwordHash)
+    {
+        var type = typeof(Student);
+        type.GetProperty(nameof(portal_password_hash))?.SetValue(this, passwordHash);
         type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.UtcNow);
     }
 }

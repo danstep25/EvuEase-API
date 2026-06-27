@@ -70,7 +70,8 @@ public class LookupService : ILookupService
             {
                 Id = (int)item.Id,
                 Value = item.Value,
-                DisplayText = item.DisplayText
+                DisplayText = item.DisplayText,
+                NumericValue = item.NumericValue
             }).ToList();
         }
         catch (Exception)

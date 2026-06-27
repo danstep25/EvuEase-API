@@ -46,6 +46,8 @@ public class DownpaymentService : IDownpaymentService
                 "A downpayment rule already exists for this program code. Edit the existing rule instead of adding another.");
         }
 
+        FeeChargeAmountValidation.EnsureDownpaymentPercent(request.DownpaymentPercent);
+
         var entity = DpPercentage.Create(
             request.ProgramCode,
             request.ProgramTitle,
@@ -78,6 +80,8 @@ public class DownpaymentService : IDownpaymentService
             throw new InvalidOperationException(
                 "Another active downpayment already uses this program code.");
         }
+
+        FeeChargeAmountValidation.EnsureDownpaymentPercent(request.DownpaymentPercent);
 
         var newEntity = DpPercentage.Create(
             newCode,

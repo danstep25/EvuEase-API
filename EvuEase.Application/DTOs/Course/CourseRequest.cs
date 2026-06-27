@@ -13,5 +13,7 @@ public class CourseRequest : FilterBaseDto
     public string? Status { get; set; }
     
     public bool? HasPrerequisites { get; set; }
+    public bool? IsElectiveSlot { get; set; }
+    public bool? IsElectiveOption { get; set; }
 }
 

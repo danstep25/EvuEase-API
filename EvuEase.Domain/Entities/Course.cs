@@ -15,6 +15,8 @@ public class Course : BaseEntity
     public string? prerequisites { get; private set; }
     public string? description { get; private set; }
     public int course_has_prerequities { get; private set; }
+    public bool is_elective_slot { get; private set; }
+    public bool is_elective_option { get; private set; }
 
     private Course() { }
 
@@ -30,7 +32,9 @@ public class Course : BaseEntity
         string? prerequisites = null,
         string? description = null,
         int courseLecUnits = 0,
-        int courseLabUnits = 0)
+        int courseLabUnits = 0,
+        bool isElectiveSlot = false,
+        bool isElectiveOption = false)
     {
         var course = new Course();
         var type = typeof(Course);
@@ -48,6 +52,8 @@ public class Course : BaseEntity
         type.GetProperty(nameof(prerequisites))?.SetValue(course, prerequisites);
         type.GetProperty(nameof(description))?.SetValue(course, description);
         type.GetProperty(nameof(course_has_prerequities))?.SetValue(course, string.IsNullOrWhiteSpace(prerequisites) ? 0 : 1);
+        type.GetProperty(nameof(is_elective_slot))?.SetValue(course, isElectiveSlot);
+        type.GetProperty(nameof(is_elective_option))?.SetValue(course, isElectiveOption && !isElectiveSlot);
         type.GetProperty(nameof(status))?.SetValue(course, true);
         type.GetProperty(nameof(created_at))?.SetValue(course, DateTime.Now);
         
@@ -65,7 +71,9 @@ public class Course : BaseEntity
         string? prerequisites = null,
         string? description = null,
         int courseLecUnits = 0,
-        int courseLabUnits = 0)
+        int courseLabUnits = 0,
+        bool isElectiveSlot = false,
+        bool isElectiveOption = false)
     {
         var type = typeof(Course);
 
@@ -81,7 +89,8 @@ public class Course : BaseEntity
         type.GetProperty(nameof(prerequisites))?.SetValue(this, prerequisites);
         type.GetProperty(nameof(description))?.SetValue(this, description);
         type.GetProperty(nameof(course_has_prerequities))?.SetValue(this, string.IsNullOrWhiteSpace(prerequisites) ? 0 : 1);
+        type.GetProperty(nameof(is_elective_slot))?.SetValue(this, isElectiveSlot);
+        type.GetProperty(nameof(is_elective_option))?.SetValue(this, isElectiveOption && !isElectiveSlot);
         type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
     }
 }
-
