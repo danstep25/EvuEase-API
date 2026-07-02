@@ -198,6 +198,11 @@ public class StudentPortalService : IStudentPortalService
             throw new UnauthorizedAccessException("Current password is incorrect.");
         }
 
+        if (PortalPasswordHelper.Verify(request.NewPassword, student.portal_password_hash))
+        {
+            throw new InvalidOperationException("New password must be different from your current password.");
+        }
+
         student.SetPortalPasswordHash(PortalPasswordHelper.Hash(request.NewPassword));
         await _studentRepository.UpdateStudentAsync(student);
     }

@@ -66,7 +66,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(context =>
+        {
+            var role = context.User.FindFirst("Role")?.Value;
+            return !string.IsNullOrWhiteSpace(role)
+                && role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        }));
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
