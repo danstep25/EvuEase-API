@@ -117,9 +117,23 @@ public class StudentPortalController : BaseController
     }
 
     [Authorize(Roles = "Student")]
-    [HttpPost("change-password")]
-    public async Task<IActionResult> ChangePassword(
-        [FromBody] StudentPortalChangePasswordRequest request,
+    [HttpGet("grade-history")]
+    public async Task<IActionResult> GetGradeHistory(CancellationToken cancellationToken)
+    {
+        var studentId = GetStudentIdFromClaims();
+        if (studentId == null)
+        {
+            return Unauthorized("Invalid student token.");
+        }
+
+        var history = await _studentPortalService.GetGradeHistoryAsync(studentId.Value, cancellationToken);
+        return Ok(history);
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpPost("set-new-password")]
+    public async Task<IActionResult> SetNewPassword(
+        [FromBody] StudentPortalSetNewPasswordRequest request,
         CancellationToken cancellationToken)
     {
         var studentId = GetStudentIdFromClaims();
@@ -130,16 +144,54 @@ public class StudentPortalController : BaseController
 
         try
         {
-            await _studentPortalService.ChangePasswordAsync(studentId.Value, request, cancellationToken);
+            await _studentPortalService.SetNewPasswordAsync(studentId.Value, request, cancellationToken);
             return Success();
         }
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(ex.Message);
         }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpPost("me/password-reset-request")]
+    public async Task<IActionResult> RequestPasswordResetAuthenticated(
+        [FromBody] StudentPortalAuthenticatedResetRequest request,
+        CancellationToken cancellationToken)
+    {
+        var studentId = GetStudentIdFromClaims();
+        if (studentId == null)
+        {
+            return Unauthorized("Invalid student token.");
+        }
+
+        try
+        {
+            await _studentPortalService.RequestPasswordResetForStudentAsync(
+                studentId.Value,
+                request.Reason,
+                cancellationToken);
+            return Success(201);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {

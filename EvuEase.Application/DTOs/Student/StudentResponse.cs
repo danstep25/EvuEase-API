@@ -19,6 +19,7 @@ public class StudentResponse
     public string? Gender { get; set; }
     public DateOnly? Birthdate { get; set; }
     public bool HasPortalAccess { get; set; }
+    public bool IsCandidateForGraduation { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

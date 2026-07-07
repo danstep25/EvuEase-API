@@ -9,7 +9,7 @@ public interface ICourseService
     Task<CourseResponse?> GetCourseByCodeAsync(string courseCode);
     Task<CourseResponse> CreateCourseAsync(CreateCourseRequest courseRequest);
     Task<CourseResponse> UpdateCourseAsync(string courseCode, UpdateCourseRequest courseRequest);
-    Task DeleteCourseAsync(string courseCode);
+    Task DeleteCourseAsync(string courseCode, string curriculumCode);
     Task<CourseBatchImportPreviewResponse> PreviewBatchImportAsync(
         CourseBatchImportRequest request,
         CancellationToken cancellationToken = default);

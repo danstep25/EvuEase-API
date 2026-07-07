@@ -19,6 +19,8 @@ public class Student : BaseEntity
     public string? gender { get; private set; }
     public DateOnly? birthdate { get; private set; }
     public string? portal_password_hash { get; private set; }
+    public bool portal_password_must_change { get; private set; }
+    public DateTime? portal_password_expires_at { get; private set; }
 
     private Student() { }
 
@@ -104,10 +106,35 @@ public class Student : BaseEntity
 
     public bool HasPortalAccess() => !string.IsNullOrWhiteSpace(portal_password_hash);
 
+    /// <summary>
+    /// Sets a permanent portal password. Clears any temporary-password state.
+    /// </summary>
     public void SetPortalPasswordHash(string? passwordHash)
     {
         var type = typeof(Student);
         type.GetProperty(nameof(portal_password_hash))?.SetValue(this, passwordHash);
+        type.GetProperty(nameof(portal_password_must_change))?.SetValue(this, false);
+        type.GetProperty(nameof(portal_password_expires_at))?.SetValue(this, (DateTime?)null);
         type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.UtcNow);
+    }
+
+    /// <summary>
+    /// Sets an admin-issued temporary portal password that the student must
+    /// replace on their next login before accessing the portal.
+    /// </summary>
+    public void SetTemporaryPortalPassword(string passwordHash, DateTime expiresAtUtc)
+    {
+        var type = typeof(Student);
+        type.GetProperty(nameof(portal_password_hash))?.SetValue(this, passwordHash);
+        type.GetProperty(nameof(portal_password_must_change))?.SetValue(this, true);
+        type.GetProperty(nameof(portal_password_expires_at))?.SetValue(this, expiresAtUtc);
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.UtcNow);
+    }
+
+    public bool IsTemporaryPasswordExpired(DateTime nowUtc)
+    {
+        return portal_password_must_change
+            && portal_password_expires_at.HasValue
+            && portal_password_expires_at.Value < nowUtc;
     }
 }

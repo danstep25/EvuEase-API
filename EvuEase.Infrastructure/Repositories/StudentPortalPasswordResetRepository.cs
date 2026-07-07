@@ -32,8 +32,21 @@ public class StudentPortalPasswordResetRepository : IStudentPortalPasswordResetR
     public async Task<bool> HasPendingForStudentAsync(long studentId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.StudentPortalPasswordResetRequests.AnyAsync(
-            r => r.student_id == studentId && r.status == "Pending",
+            r => r.student_id == studentId
+                && (r.status == StudentPortalPasswordResetRequest.StatusPending
+                    || r.status == StudentPortalPasswordResetRequest.StatusTempIssued),
             cancellationToken);
+    }
+
+    public async Task<StudentPortalPasswordResetRequest?> GetActiveTempIssuedForStudentAsync(
+        long studentId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.StudentPortalPasswordResetRequests
+            .Where(r => r.student_id == studentId
+                && r.status == StudentPortalPasswordResetRequest.StatusTempIssued)
+            .OrderByDescending(r => r.requested_at)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<StudentPortalPasswordResetRequest>> GetAllAsync(

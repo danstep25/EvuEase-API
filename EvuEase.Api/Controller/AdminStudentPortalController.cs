@@ -25,20 +25,20 @@ public class AdminStudentPortalController : BaseController
         return Ok(rows);
     }
 
-    [HttpPost("password-reset-requests/{id:long}/resolve")]
-    public async Task<IActionResult> ResolvePasswordResetRequest(
+    [HttpPost("password-reset-requests/{id:long}/issue-temporary-password")]
+    public async Task<IActionResult> IssueTemporaryPassword(
         long id,
-        [FromBody] StudentPortalPasswordResetResolveRequest request,
+        [FromBody] StudentPortalIssueTemporaryPasswordRequest request,
         CancellationToken cancellationToken)
     {
         try
         {
-            await _studentPortalService.ResolvePasswordResetRequestAsync(
+            var result = await _studentPortalService.IssueTemporaryPasswordAsync(
                 id,
                 request,
                 User.FindFirst("UserName")?.Value ?? User.FindFirst("Email")?.Value,
                 cancellationToken);
-            return Success();
+            return Ok(result);
         }
         catch (KeyNotFoundException ex)
         {

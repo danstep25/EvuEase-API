@@ -113,6 +113,12 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
             .FirstOrDefaultAsync(c => c.course_code == courseCode);
     }
 
+    public async Task<Course?> GetCourseByCodeInCurriculumAsync(string courseCode, long curriculumId)
+    {
+        return await GetAll()
+            .FirstOrDefaultAsync(c => c.course_code == courseCode && c.curriculum_id == curriculumId);
+    }
+
     public async Task<Course> CreateCourseAsync(Course course)
     {
         await AddAsync(course);
@@ -164,6 +170,31 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
         var lowerSet = normalized.Select(c => c.ToLower()).ToList();
         var matches = await GetAll()
             .Where(c => lowerSet.Contains(c.course_code.ToLower()))
+            .Select(c => c.course_code)
+            .ToListAsync(cancellationToken);
+
+        return new HashSet<string>(matches, StringComparer.OrdinalIgnoreCase);
+    }
+
+    public async Task<HashSet<string>> GetExistingCourseCodesForCurriculumAsync(
+        long curriculumId,
+        IEnumerable<string> courseCodes,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = courseCodes
+            .Select(c => c.Trim())
+            .Where(c => c.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalized.Count == 0)
+        {
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        var lowerSet = normalized.Select(c => c.ToLower()).ToList();
+        var matches = await GetAll()
+            .Where(c => c.curriculum_id == curriculumId && lowerSet.Contains(c.course_code.ToLower()))
             .Select(c => c.course_code)
             .ToListAsync(cancellationToken);
 

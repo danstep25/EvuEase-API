@@ -65,11 +65,7 @@ public class CourseService : ICourseService
 
     public async Task<CourseResponse> CreateCourseAsync(CreateCourseRequest courseRequest)
     {
-        var existingCourse = await _courseRepository.GetCourseByCodeAsync(courseRequest.CourseCode);
-        if (existingCourse != null)
-        {
-            throw new Exception($"Course with code '{courseRequest.CourseCode}' already exists.");
-        }
+        ValidateCourseTitle(courseRequest.CourseTitle);
 
         var program = await _programRepository.GetProgramByIdAsync(courseRequest.ProgramId);
         if (program == null)
@@ -88,6 +84,15 @@ public class CourseService : ICourseService
             throw new Exception($"Curriculum '{courseRequest.CurriculumCode}' does not belong to program ID '{courseRequest.ProgramId}'.");
         }
 
+        var existingCourse = await _courseRepository.GetCourseByCodeInCurriculumAsync(
+            courseRequest.CourseCode,
+            curriculum.id);
+        if (existingCourse != null)
+        {
+            throw new Exception(
+                $"Course with code '{courseRequest.CourseCode}' already exists in curriculum '{courseRequest.CurriculumCode}'.");
+        }
+
         var isElectiveSlot = ElectiveSubjectHelper.ResolveIsElectiveSlot(
             courseRequest.CourseTitle,
             courseRequest.CourseCode,
@@ -95,6 +100,11 @@ public class CourseService : ICourseService
         var isElectiveOption = ElectiveSubjectHelper.ResolveIsElectiveOption(
             isElectiveSlot,
             courseRequest.IsElectiveOption);
+
+        var normalizedPrerequisites = await ValidateCoursePrerequisitesAsync(
+            courseRequest.Prerequisites,
+            courseRequest.CourseCode,
+            curriculum.id);
 
         var course = Course.Create(
             courseRequest.CourseCode,
@@ -105,7 +115,7 @@ public class CourseService : ICourseService
             courseRequest.CourseYearLevel,
             courseRequest.CourseSemester,
             courseRequest.CourseComponent,
-            CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
+            normalizedPrerequisites,
             courseRequest.Description,
             courseRequest.CourseLecUnits,
             courseRequest.CourseLabUnits,
@@ -126,11 +136,7 @@ public class CourseService : ICourseService
 
     public async Task<CourseResponse> UpdateCourseAsync(string courseCode, UpdateCourseRequest courseRequest)
     {
-        var course = await _courseRepository.GetCourseByCodeAsync(courseCode);
-        if (course == null)
-        {
-            throw new Exception($"Course with code '{courseCode}' not found.");
-        }
+        ValidateCourseTitle(courseRequest.CourseTitle);
 
         var program = await _programRepository.GetProgramByIdAsync(courseRequest.ProgramId);
         if (program == null)
@@ -149,6 +155,13 @@ public class CourseService : ICourseService
             throw new Exception($"Curriculum '{courseRequest.CurriculumCode}' does not belong to program ID '{courseRequest.ProgramId}'.");
         }
 
+        var course = await _courseRepository.GetCourseByCodeInCurriculumAsync(courseCode, curriculum.id);
+        if (course == null)
+        {
+            throw new Exception(
+                $"Course with code '{courseCode}' was not found in curriculum '{courseRequest.CurriculumCode}'.");
+        }
+
         var isElectiveSlot = ElectiveSubjectHelper.ResolveIsElectiveSlot(
             courseRequest.CourseTitle,
             course.course_code,
@@ -156,6 +169,11 @@ public class CourseService : ICourseService
         var isElectiveOption = ElectiveSubjectHelper.ResolveIsElectiveOption(
             isElectiveSlot,
             courseRequest.IsElectiveOption);
+
+        var normalizedPrerequisites = await ValidateCoursePrerequisitesAsync(
+            courseRequest.Prerequisites,
+            course.course_code,
+            curriculum.id);
 
         course.Update(
             curriculum.id,
@@ -165,7 +183,7 @@ public class CourseService : ICourseService
             courseRequest.CourseYearLevel,
             courseRequest.CourseSemester,
             courseRequest.CourseComponent,
-            CourseBatchImportHelper.NormalizePrerequisites(courseRequest.Prerequisites),
+            normalizedPrerequisites,
             courseRequest.Description,
             course.course_lec_units,
             course.course_lab_units,
@@ -184,13 +202,27 @@ public class CourseService : ICourseService
         }
     }
 
-    public async Task DeleteCourseAsync(string courseCode)
+    public async Task DeleteCourseAsync(string courseCode, string curriculumCode)
     {
-        var course = await _courseRepository.GetCourseByCodeAsync(courseCode);
+        var normalizedCurriculumCode = curriculumCode?.Trim() ?? string.Empty;
+        if (normalizedCurriculumCode.Length == 0)
+        {
+            throw new InvalidOperationException("Curriculum code is required to delete a course.");
+        }
+
+        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(normalizedCurriculumCode);
+        if (curriculum == null)
+        {
+            throw new Exception($"Curriculum with code '{normalizedCurriculumCode}' not found.");
+        }
+
+        var course = await _courseRepository.GetCourseByCodeInCurriculumAsync(courseCode, curriculum.id);
         if (course == null)
         {
-            throw new Exception($"Course with code '{courseCode}' not found.");
+            throw new Exception(
+                $"Course with code '{courseCode}' was not found in curriculum '{normalizedCurriculumCode}'.");
         }
+
         await _courseRepository.DeleteCourseAsync(course);
     }
 
@@ -311,7 +343,9 @@ public class CourseService : ICourseService
     {
         var preview = await PreviewBatchImportAsync(request, cancellationToken);
         var importable = preview.Rows
-            .Where(r => r.Selected && !string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase))
+            .Where(r => r.Selected
+                        && !string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase)
+                        && r.CourseTitle.Length <= CourseValidationConstants.MaxTitleLength)
             .ToList();
 
         if (importable.Count == 0)
@@ -456,13 +490,20 @@ public class CourseService : ICourseService
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var lookupCodes = batchCodes.Union(prereqCodes).ToList();
-        var existingCodes = await _courseRepository.GetExistingCourseCodesAsync(lookupCodes);
+        var existingCodesInCurriculum = await _courseRepository.GetExistingCourseCodesForCurriculumAsync(
+            curriculum.id,
+            lookupCodes);
 
         var duplicateTracker = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var row in rows)
         {
-            ValidateBatchPreviewRow(row, duplicateTracker, existingCodes, batchCodes);
+            ValidateBatchPreviewRow(
+                row,
+                duplicateTracker,
+                existingCodesInCurriculum,
+                batchCodes,
+                curriculum.curriculum_code);
         }
 
         return new CourseBatchImportPreviewResponse
@@ -480,8 +521,9 @@ public class CourseService : ICourseService
     private static void ValidateBatchPreviewRow(
         CourseBatchImportPreviewRowDto row,
         HashSet<string> duplicateTracker,
-        HashSet<string> existingCodes,
-        HashSet<string> batchCodes)
+        HashSet<string> existingCodesInCurriculum,
+        HashSet<string> batchCodes,
+        string curriculumCode)
     {
         var messages = row.Messages;
 
@@ -498,9 +540,9 @@ public class CourseService : ICourseService
         {
             messages.Add("Course description is required.");
         }
-        else if (row.CourseTitle.Length > 50)
+        else if (row.CourseTitle.Length > CourseValidationConstants.MaxTitleLength)
         {
-            messages.Add("Course description must be 50 characters or fewer.");
+            messages.Add(CourseValidationConstants.TitleTooLongMessage);
         }
 
         if (row.CourseYearLevel.Length == 0)
@@ -523,9 +565,9 @@ public class CourseService : ICourseService
             messages.Add("Total units does not match LEC + LAB.");
         }
 
-        if (row.Prerequisites != null && row.Prerequisites.Length > 200)
+        if (row.Prerequisites != null && row.Prerequisites.Length > CourseValidationConstants.MaxPrerequisitesLength)
         {
-            messages.Add("Pre-requisites exceed the maximum length.");
+            messages.Add(CourseValidationConstants.PrerequisitesTooLongMessage);
         }
 
         if (row.CourseCode.Length > 0)
@@ -535,9 +577,10 @@ public class CourseService : ICourseService
                 messages.Add($"Duplicate course code in file: {row.CourseCode}.");
             }
 
-            if (existingCodes.Contains(row.CourseCode))
+            if (existingCodesInCurriculum.Contains(row.CourseCode))
             {
-                messages.Add($"Course code '{row.CourseCode}' already exists.");
+                messages.Add(
+                    $"Course code '{row.CourseCode}' already exists in curriculum '{curriculumCode}'.");
             }
         }
 
@@ -549,23 +592,86 @@ public class CourseService : ICourseService
                 continue;
             }
 
-            if (!batchCodes.Contains(prereq) && !existingCodes.Contains(prereq))
+            if (!batchCodes.Contains(prereq) && !existingCodesInCurriculum.Contains(prereq))
             {
-                messages.Add($"Pre-requisite '{prereq}' was not found in this file or existing courses.");
+                messages.Add(
+                    $"Pre-requisite '{prereq}' was not found in this file or in curriculum '{curriculumCode}'.");
             }
         }
 
-        row.Status = messages.Any(m => m.Contains("required", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("already exists", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("Duplicate", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("must be", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("cannot list", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("not found", StringComparison.OrdinalIgnoreCase)
-                                         || m.Contains("exceed", StringComparison.OrdinalIgnoreCase))
+        row.Status = messages.Any(m => IsBatchErrorMessage(m))
             ? "Error"
             : messages.Count > 0
                 ? "Warning"
                 : "Valid";
+    }
+
+    private static bool IsBatchErrorMessage(string message)
+    {
+        if (CourseValidationConstants.IsTitleLengthMessage(message))
+        {
+            return false;
+        }
+
+        return message.Contains("required", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("already exists", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Duplicate", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("must be", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("cannot list", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("exceed", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void ValidateCourseTitle(string? title)
+    {
+        var trimmed = title?.Trim() ?? string.Empty;
+        if (trimmed.Length == 0)
+        {
+            throw new InvalidOperationException("Course title is required.");
+        }
+
+        if (trimmed.Length > CourseValidationConstants.MaxTitleLength)
+        {
+            throw new InvalidOperationException(CourseValidationConstants.TitleTooLongMessage);
+        }
+    }
+
+    private async Task<string?> ValidateCoursePrerequisitesAsync(
+        string? rawPrerequisites,
+        string courseCode,
+        long curriculumId)
+    {
+        var normalized = CourseBatchImportHelper.NormalizePrerequisites(rawPrerequisites);
+
+        if (normalized != null && normalized.Length > CourseValidationConstants.MaxPrerequisitesLength)
+        {
+            throw new InvalidOperationException(CourseValidationConstants.PrerequisitesTooLongMessage);
+        }
+
+        var codes = CourseBatchImportHelper.ParsePrerequisiteCodes(normalized);
+        if (codes.Count == 0)
+        {
+            return normalized;
+        }
+
+        foreach (var prereq in codes)
+        {
+            if (string.Equals(prereq, courseCode, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException($"Course cannot list itself as a pre-requisite ({prereq}).");
+            }
+        }
+
+        var existingCodes = await _courseRepository.GetExistingCourseCodesForCurriculumAsync(curriculumId, codes);
+        foreach (var prereq in codes)
+        {
+            if (!existingCodes.Contains(prereq))
+            {
+                throw new InvalidOperationException($"Pre-requisite '{prereq}' was not found in this curriculum.");
+            }
+        }
+
+        return normalized;
     }
 
     private async Task<CourseResponse> MapCourseToResponse(Course course)

@@ -18,6 +18,8 @@ public class StudentPortalPasswordResetRequestConfiguration : IEntityTypeConfigu
         builder.Property(r => r.status).HasColumnName("status").HasMaxLength(30).IsRequired();
         builder.Property(r => r.registrar_notes).HasColumnName("registrar_notes").HasMaxLength(500);
         builder.Property(r => r.resolved_by).HasColumnName("resolved_by").HasMaxLength(200);
+        builder.Property(r => r.temporary_password).HasColumnName("temporary_password").HasMaxLength(255);
+        builder.Property(r => r.temporary_password_expires_at).HasColumnName("temporary_password_expires_at");
         builder.Property(r => r.requested_at).HasColumnName("requested_at");
         builder.Property(r => r.resolved_at).HasColumnName("resolved_at");
     }

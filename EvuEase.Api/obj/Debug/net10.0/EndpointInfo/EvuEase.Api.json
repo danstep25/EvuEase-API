@@ -46,7 +46,7 @@
         }
       }
     },
-    "/api/Admin/student-portal/password-reset-requests/{id}/resolve": {
+    "/api/Admin/student-portal/password-reset-requests/{id}/issue-temporary-password": {
       "post": {
         "tags": [
           "AdminStudentPortal"
@@ -67,17 +67,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+                "$ref": "#/components/schemas/StudentPortalIssueTemporaryPasswordRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+                "$ref": "#/components/schemas/StudentPortalIssueTemporaryPasswordRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalPasswordResetResolveRequest"
+                "$ref": "#/components/schemas/StudentPortalIssueTemporaryPasswordRequest"
               }
             }
           },
@@ -1278,6 +1278,13 @@
             "name": "code",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "curriculumCode",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -3559,7 +3566,19 @@
         }
       }
     },
-    "/api/StudentPortal/change-password": {
+    "/api/StudentPortal/grade-history": {
+      "get": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/set-new-password": {
       "post": {
         "tags": [
           "StudentPortal"
@@ -3568,17 +3587,49 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+                "$ref": "#/components/schemas/StudentPortalSetNewPasswordRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+                "$ref": "#/components/schemas/StudentPortalSetNewPasswordRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentPortalChangePasswordRequest"
+                "$ref": "#/components/schemas/StudentPortalSetNewPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentPortal/me/password-reset-request": {
+      "post": {
+        "tags": [
+          "StudentPortal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalAuthenticatedResetRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalAuthenticatedResetRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentPortalAuthenticatedResetRequest"
               }
             }
           },
@@ -5245,14 +5296,25 @@
       "Status": {
         "type": "integer"
       },
-      "StudentPortalChangePasswordRequest": {
+      "StudentPortalAuthenticatedResetRequest": {
         "type": "object",
         "properties": {
-          "currentPassword": {
-            "type": "string"
-          },
-          "newPassword": {
-            "type": "string"
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "StudentPortalIssueTemporaryPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "registrarNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -5292,17 +5354,11 @@
           }
         }
       },
-      "StudentPortalPasswordResetResolveRequest": {
+      "StudentPortalSetNewPasswordRequest": {
         "type": "object",
         "properties": {
-          "newPortalPassword": {
+          "newPassword": {
             "type": "string"
-          },
-          "registrarNotes": {
-            "type": [
-              "null",
-              "string"
-            ]
           }
         }
       },

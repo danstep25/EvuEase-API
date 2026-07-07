@@ -77,6 +77,78 @@ public class FacultyClassEnrollmentRepository : IFacultyClassEnrollmentRepositor
             .ToList();
     }
 
+    public async Task<IReadOnlyDictionary<long, IReadOnlyList<StudentClassEnrollmentRowDto>>> GetEnrollmentRowsForStudentsAsync(
+        IReadOnlyList<long> studentIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (studentIds.Count == 0)
+        {
+            return new Dictionary<long, IReadOnlyList<StudentClassEnrollmentRowDto>>();
+        }
+
+        var idSet = studentIds.Distinct().ToList();
+
+        var raw = await (
+                from e in _dbContext.FacultyClassEnrollments.AsNoTracking()
+                join s in _dbContext.Students.AsNoTracking() on e.student_id equals s.id
+                join fc in _dbContext.FacultyClasses.AsNoTracking() on e.faculty_class_id equals fc.id
+                join prog in _dbContext.Programs.AsNoTracking() on fc.program_code equals prog.program_code
+                where idSet.Contains(s.id)
+                      && s.status && s.deleted_at == null
+                      && e.status && e.deleted_at == null
+                      && fc.status && fc.deleted_at == null
+                      && prog.status && prog.deleted_at == null
+                let units = _dbContext.Courses.AsNoTracking()
+                    .Where(c => c.course_code == fc.course_code
+                                && c.program_id == prog.program_id
+                                && c.status
+                                && c.deleted_at == null)
+                    .Select(c => (int?)c.course_total_units)
+                    .FirstOrDefault() ?? 0
+                orderby s.id, fc.academic_term descending, fc.course_code
+                select new
+                {
+                    s.id,
+                    EnrollmentId = e.id,
+                    FacultyClassId = fc.id,
+                    e.official_grade,
+                    e.remarks,
+                    fc.course_code,
+                    fc.course_title,
+                    fc.class_number,
+                    fc.section,
+                    fc.component,
+                    fc.academic_term,
+                    fc.program_code,
+                    fc.year_level,
+                    units
+                })
+            .ToListAsync(cancellationToken);
+
+        return raw
+            .GroupBy(x => x.id)
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<StudentClassEnrollmentRowDto>)g
+                    .Select(x => new StudentClassEnrollmentRowDto
+                    {
+                        EnrollmentId = x.EnrollmentId,
+                        FacultyClassId = x.FacultyClassId,
+                        CourseCode = x.course_code,
+                        CourseTitle = x.course_title,
+                        ClassNumber = x.class_number,
+                        Section = x.section,
+                        Component = x.component,
+                        AcademicTerm = x.academic_term,
+                        ProgramCode = x.program_code,
+                        YearLevel = x.year_level,
+                        Units = x.units,
+                        OfficialGrade = x.official_grade,
+                        Remarks = GradeRosterRemarksHelper.EffectiveRemarks(x.remarks, x.official_grade)
+                    })
+                    .ToList());
+    }
+
     public async Task<IReadOnlyList<ClassRosterStudentResponse>> GetStudentRowsForClassAsync(
         long facultyClassId,
         CancellationToken cancellationToken = default)

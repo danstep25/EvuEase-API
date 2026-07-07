@@ -30,6 +30,8 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         builder.Property(s => s.gender).HasColumnName("gender").HasMaxLength(20);
         builder.Property(s => s.birthdate).HasColumnName("birthdate").HasColumnType("date");
         builder.Property(s => s.portal_password_hash).HasColumnName("portal_password_hash").HasMaxLength(255);
+        builder.Property(s => s.portal_password_must_change).HasColumnName("portal_password_must_change").IsRequired().HasDefaultValue(false);
+        builder.Property(s => s.portal_password_expires_at).HasColumnName("portal_password_expires_at");
 
         builder.Property(s => s.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(s => s.created_at).HasColumnName("created_at");

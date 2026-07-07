@@ -1,6 +1,7 @@
 using AutoMapper;
 using EvuEase.Application.Common;
 using EvuEase.Application.DTOs.Student;
+using EvuEase.Application.DTOs.Course;
 using EvuEase.Application.Interfaces.Repositories;
 using EvuEase.Application.Interfaces.Services;
 using EvuEase.Application.EnrollmentAnalytics;
@@ -17,6 +18,7 @@ public class StudentService : IStudentService
     private readonly IProgramRepository _programRepository;
     private readonly IStudentCurriculumHistoryRepository _curriculumHistoryRepository;
     private readonly IStudentCurriculumAssignmentService _curriculumAssignmentService;
+    private readonly ICourseRepository _courseRepository;
     private readonly IMapper _mapper;
 
     public StudentService(
@@ -26,6 +28,7 @@ public class StudentService : IStudentService
         IProgramRepository programRepository,
         IStudentCurriculumHistoryRepository curriculumHistoryRepository,
         IStudentCurriculumAssignmentService curriculumAssignmentService,
+        ICourseRepository courseRepository,
         IMapper mapper)
     {
         _studentRepository = studentRepository;
@@ -34,13 +37,16 @@ public class StudentService : IStudentService
         _programRepository = programRepository;
         _curriculumHistoryRepository = curriculumHistoryRepository;
         _curriculumAssignmentService = curriculumAssignmentService;
+        _courseRepository = courseRepository;
         _mapper = mapper;
     }
 
     public async Task<PagedResults<StudentResponse>> GetAllStudents(StudentRequest request)
     {
         var paged = await _studentRepository.GetAllStudents(request);
-        return paged.MapToDto<Student, StudentResponse>(_mapper);
+        var mapped = paged.MapToDto<Student, StudentResponse>(_mapper);
+        await ApplyGraduationCandidateFlagsAsync(paged.Result, mapped.Result);
+        return mapped;
     }
 
     public async Task<StudentResponse?> GetStudentByIdAsync(long id)
@@ -339,5 +345,67 @@ public class StudentService : IStudentService
                 return dto;
             })
             .ToList();
+    }
+
+    private async Task ApplyGraduationCandidateFlagsAsync(
+        IReadOnlyList<Student> students,
+        IList<StudentResponse> responses)
+    {
+        if (students.Count == 0 || responses.Count == 0)
+        {
+            return;
+        }
+
+        var studentIds = students.Select(s => s.id).ToList();
+        var enrollmentsByStudent = await _enrollmentRepository.GetEnrollmentRowsForStudentsAsync(studentIds);
+
+        var curriculumCodes = students
+            .Select(s => s.curriculum_code?.Trim())
+            .Where(code => !string.IsNullOrEmpty(code))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Cast<string>()
+            .ToList();
+
+        var requiredCoursesByCurriculum = new Dictionary<string, List<StudentGraduationEligibilityHelper.GraduationRequiredCourse>>(
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var curriculumCode in curriculumCodes)
+        {
+            var coursesPage = await _courseRepository.GetAllCourses(new CourseRequest
+            {
+                CurriculumCode = curriculumCode,
+                PageIndex = 1,
+                PageSize = 2000,
+                SortDirection = "asc",
+                SortKey = "course_code"
+            });
+
+            requiredCoursesByCurriculum[curriculumCode] = coursesPage.Result
+                .Select(c => new StudentGraduationEligibilityHelper.GraduationRequiredCourse(
+                    c.course_code,
+                    c.is_elective_option))
+                .ToList();
+        }
+
+        for (var i = 0; i < students.Count; i++)
+        {
+            var student = students[i];
+            var response = responses[i];
+            var curriculumCode = student.curriculum_code?.Trim();
+
+            if (string.IsNullOrEmpty(curriculumCode)
+                || !requiredCoursesByCurriculum.TryGetValue(curriculumCode, out var requiredCourses))
+            {
+                response.IsCandidateForGraduation = false;
+                continue;
+            }
+
+            enrollmentsByStudent.TryGetValue(student.id, out var enrollments);
+            enrollments ??= Array.Empty<StudentClassEnrollmentRowDto>();
+
+            response.IsCandidateForGraduation = StudentGraduationEligibilityHelper.IsCandidateForGraduation(
+                requiredCourses,
+                enrollments);
+        }
     }
 }

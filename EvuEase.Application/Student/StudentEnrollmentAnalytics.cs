@@ -14,8 +14,11 @@ public static class StudentEnrollmentAnalytics
             return summary;
         }
 
-        decimal weightedSum = 0;
-        int unitsForGpa = 0;
+        // GWA = Total Credit Points (grade x units, every occurrence counted
+        // individually including retakes and failures) / Total Units, rounded to
+        // two decimal places.
+        decimal totalCreditPoints = 0;
+        int totalUnits = 0;
         var completedUnits = 0;
 
         foreach (var row in rows)
@@ -31,11 +34,12 @@ public static class StudentEnrollmentAnalytics
                 continue;
             }
 
+            totalCreditPoints += g * u;
+            totalUnits += u;
+
             if (g <= 3.0m)
             {
                 completedUnits += u;
-                weightedSum += g * u;
-                unitsForGpa += u;
             }
             else
             {
@@ -44,9 +48,9 @@ public static class StudentEnrollmentAnalytics
         }
 
         summary.TotalUnitsCompleted = completedUnits;
-        if (unitsForGpa > 0)
+        if (totalUnits > 0)
         {
-            summary.CumulativeGpa = Math.Round(weightedSum / unitsForGpa, 4, MidpointRounding.AwayFromZero);
+            summary.CumulativeGpa = Math.Round(totalCreditPoints / totalUnits, 2, MidpointRounding.AwayFromZero);
         }
 
         var byCode = rows

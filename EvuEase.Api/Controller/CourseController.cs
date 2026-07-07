@@ -206,11 +206,16 @@ public class CourseController : BaseController
 
     [Authorize]
     [HttpDelete("{code}")]
-    public async Task<IActionResult> Delete(string code)
+    public async Task<IActionResult> Delete(string code, [FromQuery] string curriculumCode)
     {
         try
         {
-            await _courseService.DeleteCourseAsync(code);
+            if (string.IsNullOrWhiteSpace(curriculumCode))
+            {
+                return BadRequest("curriculumCode query parameter is required.");
+            }
+
+            await _courseService.DeleteCourseAsync(code, curriculumCode);
             return NoContent();
         }
         catch (Exception ex)

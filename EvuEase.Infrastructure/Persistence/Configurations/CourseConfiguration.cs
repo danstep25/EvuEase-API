@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using EvuEase.Application.Common;
 using EvuEase.Domain.Entities;
 
 namespace EvuEase.Infrastructure.Persistence.Configurations;
@@ -10,7 +11,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
     {
         builder.ToTable("tbl_course");
 
-        builder.HasKey(c => c.course_code);
+        builder.HasKey(c => new { c.curriculum_id, c.course_code });
         builder.Property(c => c.course_code).HasColumnName("course_code").HasMaxLength(20).IsRequired();
         builder.Property(c => c.curriculum_id)
             .HasColumnName("curriculum_id")
@@ -24,7 +25,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
             .HasConversion<int>(
                 v => (int)v,
                 v => (long)v);
-        builder.Property(c => c.course_title).HasColumnName("course_title").HasMaxLength(50).IsRequired();
+        builder.Property(c => c.course_title).HasColumnName("course_title").HasMaxLength(CourseValidationConstants.MaxTitleLength).IsRequired();
         builder.Property(c => c.course_lec_units).HasColumnName("course_lec_units").IsRequired();
         builder.Property(c => c.course_lab_units).HasColumnName("course_lab_units").IsRequired();
         builder.Property(c => c.course_total_units).HasColumnName("course_total_units").IsRequired();

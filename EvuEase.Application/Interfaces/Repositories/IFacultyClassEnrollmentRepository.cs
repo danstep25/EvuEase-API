@@ -22,6 +22,10 @@ public interface IFacultyClassEnrollmentRepository
         long studentId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<long, IReadOnlyList<StudentClassEnrollmentRowDto>>> GetEnrollmentRowsForStudentsAsync(
+        IReadOnlyList<long> studentIds,
+        CancellationToken cancellationToken = default);
+
     Task<int> CountEnrollmentsForClassAsync(long facultyClassId, CancellationToken cancellationToken = default);
 
     
