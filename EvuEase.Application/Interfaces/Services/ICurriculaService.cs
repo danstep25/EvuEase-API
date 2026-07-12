@@ -10,6 +10,14 @@ public interface ICurriculaService
     Task<CurriculaResponse> CreateCurriculaAsync(CreateCurriculaRequest curriculaRequest);
     Task<CurriculaResponse> UpdateCurriculaAsync(UpdateCurriculaRequest curriculaRequest);
     Task DeleteCurriculaAsync(long id);
+    Task<CurriculaResponse?> UploadSupportingDocumentAsync(
+        string curriculumCode,
+        Stream content,
+        string fileName,
+        CancellationToken cancellationToken = default);
+    Task<(Stream Stream, string FileName, string ContentType)?> GetSupportingDocumentAsync(
+        string curriculumCode,
+        CancellationToken cancellationToken = default);
 }
 
 

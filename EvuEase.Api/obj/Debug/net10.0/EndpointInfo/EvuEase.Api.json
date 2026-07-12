@@ -1970,6 +1970,63 @@
         }
       }
     },
+    "/api/Curricula/code/{curriculumCode}/supporting-document": {
+      "post": {
+        "tags": [
+          "Curricula"
+        ],
+        "parameters": [
+          {
+            "name": "curriculumCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Curricula"
+        ],
+        "parameters": [
+          {
+            "name": "curriculumCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Downpayment": {
       "get": {
         "tags": [
@@ -2163,6 +2220,119 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EvaluationAudit": {
+      "get": {
+        "tags": [
+          "EvaluationAudit"
+        ],
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchTerm",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "EvaluationAudit"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluationAuditRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluationAuditRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluationAuditRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EvaluationAudit/{id}": {
+      "get": {
+        "tags": [
+          "EvaluationAudit"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -4826,6 +4996,51 @@
           }
         }
       },
+      "CreateEvaluationAuditRequest": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "studentNumber": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "programCode": {
+            "type": "string"
+          },
+          "programYearLevel": {
+            "type": "string"
+          },
+          "schoolYear": {
+            "type": "string"
+          },
+          "semester": {
+            "type": "string"
+          },
+          "schoolYearTerm": {
+            "type": "string"
+          },
+          "totalUnitsSelected": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "evaluationData": {
+            "$ref": "#/components/schemas/JsonElement"
+          }
+        }
+      },
       "CreateMiscellaneousFeeRequest": {
         "type": "object",
         "properties": {
@@ -5192,6 +5407,7 @@
         "type": "string",
         "format": "binary"
       },
+      "JsonElement": { },
       "LoginRequest": {
         "type": "object",
         "properties": {
@@ -5995,6 +6211,9 @@
     },
     {
       "name": "Downpayment"
+    },
+    {
+      "name": "EvaluationAudit"
     },
     {
       "name": "GradeRoster"

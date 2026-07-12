@@ -14,6 +14,9 @@ public class CurriculaResponse
     public string CurriculumStatus { get; set; } = string.Empty;
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public bool HasSupportingDocument { get; set; }
+    public string? SupportingDocumentFileName { get; set; }
+    public DateTime? SupportingDocumentUploadedAt { get; set; }
 }
 
 

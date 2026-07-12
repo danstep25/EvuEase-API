@@ -17,7 +17,10 @@ public class CurriculaMappingProfile : Profile
             .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.effective_date))
             .ForMember(dest => dest.CurriculumStatus, opt => opt.MapFrom(src => src.curriculum_status))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.created_at))
-            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.updated_at));
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.updated_at))
+            .ForMember(dest => dest.HasSupportingDocument, opt => opt.MapFrom(src => !string.IsNullOrWhiteSpace(src.supporting_document_storage_key)))
+            .ForMember(dest => dest.SupportingDocumentFileName, opt => opt.MapFrom(src => src.supporting_document_file_name))
+            .ForMember(dest => dest.SupportingDocumentUploadedAt, opt => opt.MapFrom(src => src.supporting_document_uploaded_at));
     }
 }
 

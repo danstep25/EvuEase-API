@@ -345,7 +345,7 @@ public class CourseService : ICourseService
         var importable = preview.Rows
             .Where(r => r.Selected
                         && !string.Equals(r.Status, "Error", StringComparison.OrdinalIgnoreCase)
-                        && r.CourseTitle.Length <= CourseValidationConstants.MaxTitleLength)
+                        && (r.CourseTitle?.Length ?? 0) <= CourseValidationConstants.MaxTitleLength)
             .ToList();
 
         if (importable.Count == 0)
@@ -353,19 +353,37 @@ public class CourseService : ICourseService
             throw new InvalidOperationException("No valid rows selected for import.");
         }
 
-        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(request.CurriculumCode.Trim());
+        var curriculumCode = request.CurriculumCode?.Trim() ?? string.Empty;
+        var curriculum = await _curriculaRepository.GetCurriculaByCodeAsync(curriculumCode);
         if (curriculum == null)
         {
-            throw new InvalidOperationException($"Curriculum '{request.CurriculumCode}' was not found.");
+            throw new InvalidOperationException($"Curriculum '{curriculumCode}' was not found.");
+        }
+
+        var (rowsToImport, skippedDuplicates) = await PartitionImportableRowsByExistingCourseCodesAsync(
+            importable,
+            curriculum.id,
+            cancellationToken);
+
+        if (rowsToImport.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "No new courses to import. All selected rows already exist in this curriculum or have validation errors.");
         }
 
         var result = new CourseBatchImportResultResponse
         {
-            SkippedCount = preview.Rows.Count - importable.Count
+            SkippedCount = preview.Rows.Count(r => r.Selected) - rowsToImport.Count
         };
 
+        foreach (var skipped in skippedDuplicates)
+        {
+            result.Warnings.Add(
+                $"Row {skipped.RowNumber}: Skipped '{skipped.CourseCode}' because it already exists in curriculum '{curriculum.curriculum_code}'.");
+        }
+
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        foreach (var row in importable)
+        foreach (var row in rowsToImport)
         {
             var isElectiveSlot = ElectiveSubjectHelper.IsElectiveSlot(row.CourseTitle, row.CourseCode);
             var course = Course.Create(
@@ -396,6 +414,34 @@ public class CourseService : ICourseService
                 .SelectMany(r => r.Messages.Select(m => $"Row {r.RowNumber}: {m}")));
 
         return result;
+    }
+
+    private async Task<(
+        List<CourseBatchImportPreviewRowDto> RowsToImport,
+        List<CourseBatchImportPreviewRowDto> SkippedDuplicates)> PartitionImportableRowsByExistingCourseCodesAsync(
+        IReadOnlyList<CourseBatchImportPreviewRowDto> importable,
+        long curriculumId,
+        CancellationToken cancellationToken)
+    {
+        var codesToImport = importable
+            .Select(r => r.CourseCode)
+            .Where(code => !string.IsNullOrWhiteSpace(code))
+            .ToList();
+
+        var existingCodes = await _courseRepository.GetExistingCourseCodesForCurriculumAsync(
+            curriculumId,
+            codesToImport,
+            cancellationToken);
+
+        var rowsToImport = importable
+            .Where(row => !existingCodes.Contains(row.CourseCode))
+            .ToList();
+
+        var skippedDuplicates = importable
+            .Where(row => existingCodes.Contains(row.CourseCode))
+            .ToList();
+
+        return (rowsToImport, skippedDuplicates);
     }
 
     private async Task<(Curricula curriculum, Domain.Entities.Program program, List<CourseBatchImportPreviewRowDto> rows)> ValidateBatchContextAsync(
@@ -459,13 +505,13 @@ public class CourseService : ICourseService
         return new CourseBatchImportPreviewRowDto
         {
             RowNumber = row.RowNumber,
-            CourseCode = row.CourseCode.Trim().ToUpperInvariant(),
-            CourseTitle = row.CourseTitle.Trim(),
+            CourseCode = (row.CourseCode ?? string.Empty).Trim().ToUpperInvariant(),
+            CourseTitle = (row.CourseTitle ?? string.Empty).Trim(),
             CourseLecUnits = lec,
             CourseLabUnits = lab,
             CourseTotalUnits = total,
-            CourseYearLevel = CourseBatchImportHelper.NormalizeYearLevel(row.CourseYearLevel),
-            CourseSemester = CourseBatchImportHelper.NormalizeSemester(row.CourseSemester),
+            CourseYearLevel = CourseBatchImportHelper.NormalizeYearLevel(row.CourseYearLevel ?? string.Empty),
+            CourseSemester = CourseBatchImportHelper.NormalizeSemester(row.CourseSemester ?? string.Empty),
             Prerequisites = prerequisites,
             CourseComponent = row.CourseComponent?.Trim()
                 ?? CourseBatchImportHelper.DeriveComponent(lec, lab),

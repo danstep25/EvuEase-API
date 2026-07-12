@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IClassAssignmentService, ClassAssignmentService>();
         services.AddScoped<IClassRosterService, ClassRosterService>();
         services.AddScoped<ICreditRequestService, CreditRequestService>();
+        services.AddScoped<IEvaluationAuditService, EvaluationAuditService>();
         services.AddScoped<IArchiveService, ArchiveService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
 

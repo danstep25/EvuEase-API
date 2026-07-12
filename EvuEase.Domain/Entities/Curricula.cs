@@ -9,6 +9,9 @@ public class Curricula : BaseEntity
     public long sy_id { get; private set; }
     public DateOnly effective_date { get; private set; }
     public string curriculum_status { get; private set; } = string.Empty;
+    public string? supporting_document_file_name { get; private set; }
+    public string? supporting_document_storage_key { get; private set; }
+    public DateTime? supporting_document_uploaded_at { get; private set; }
 
     private Curricula() { }
 
@@ -39,6 +42,26 @@ public class Curricula : BaseEntity
         type.GetProperty(nameof(this.sy_id))?.SetValue(this, syId);
         type.GetProperty(nameof(this.effective_date))?.SetValue(this, effectiveDate);
         type.GetProperty(nameof(this.curriculum_status))?.SetValue(this, curriculumStatus);
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
+    }
+
+    public void SetSupportingDocument(string fileName, string storageKey)
+    {
+        var type = typeof(Curricula);
+
+        type.GetProperty(nameof(supporting_document_file_name))?.SetValue(this, fileName);
+        type.GetProperty(nameof(supporting_document_storage_key))?.SetValue(this, storageKey);
+        type.GetProperty(nameof(supporting_document_uploaded_at))?.SetValue(this, DateTime.Now);
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
+    }
+
+    public void ClearSupportingDocument()
+    {
+        var type = typeof(Curricula);
+
+        type.GetProperty(nameof(supporting_document_file_name))?.SetValue(this, null);
+        type.GetProperty(nameof(supporting_document_storage_key))?.SetValue(this, null);
+        type.GetProperty(nameof(supporting_document_uploaded_at))?.SetValue(this, null);
         type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
     }
 }

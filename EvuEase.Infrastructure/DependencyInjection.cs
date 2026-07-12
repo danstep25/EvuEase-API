@@ -34,6 +34,8 @@ namespace EvuEase.Infrastructure
             services.AddScoped<ICreditRequestRepository, CreditRequestRepository>();
             services.AddScoped<ICreditRequestLineRepository, CreditRequestLineRepository>();
             services.AddScoped<ICreditRequestSignedDocumentStore, CreditRequestSignedDocumentStore>();
+            services.AddScoped<ICurriculumSupportingDocumentStore, CurriculumSupportingDocumentStore>();
+            services.AddScoped<ISubjectEvaluationAuditRepository, SubjectEvaluationAuditRepository>();
             services.AddScoped<IArchiveRepository, ArchiveRepository>();
             services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 

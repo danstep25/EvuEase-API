@@ -21,6 +21,9 @@ public class CurriculaConfiguration : IEntityTypeConfiguration<Curricula>
         builder.Property(c => c.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(c => c.created_at).HasColumnName("created_at");
         builder.Property(c => c.updated_at).HasColumnName("updated_at");
+        builder.Property(c => c.supporting_document_file_name).HasColumnName("supporting_document_file_name").HasMaxLength(260);
+        builder.Property(c => c.supporting_document_storage_key).HasColumnName("supporting_document_storage_key").HasMaxLength(500);
+        builder.Property(c => c.supporting_document_uploaded_at).HasColumnName("supporting_document_uploaded_at");
     }
 }
 

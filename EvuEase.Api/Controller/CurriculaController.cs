@@ -95,6 +95,71 @@ public class CurriculaController : BaseController
             return InternalServerError($"An error occurred while deleting curriculum with ID {id}.", ex.Message);
         }
     }
+
+    [Authorize]
+    [HttpPost("code/{curriculumCode}/supporting-document")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<IActionResult> UploadSupportingDocument(
+        string curriculumCode,
+        IFormFile? file,
+        CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("A supporting document file is required.");
+        }
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var data = await _curriculaService.UploadSupportingDocumentAsync(
+                curriculumCode,
+                stream,
+                file.FileName,
+                cancellationToken);
+
+            if (data == null)
+            {
+                return NotFound($"Curriculum with code {curriculumCode} was not found.");
+            }
+
+            return Ok(data);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError(
+                $"An error occurred while uploading the supporting document for curriculum {curriculumCode}.",
+                ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpGet("code/{curriculumCode}/supporting-document")]
+    public async Task<IActionResult> DownloadSupportingDocument(
+        string curriculumCode,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var file = await _curriculaService.GetSupportingDocumentAsync(curriculumCode, cancellationToken);
+            if (file == null)
+            {
+                return NotFound("Supporting document was not found for this curriculum.");
+            }
+
+            return File(file.Value.Stream, file.Value.ContentType, file.Value.FileName);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError(
+                $"An error occurred while downloading the supporting document for curriculum {curriculumCode}.",
+                ex.Message);
+        }
+    }
 }
 
 
