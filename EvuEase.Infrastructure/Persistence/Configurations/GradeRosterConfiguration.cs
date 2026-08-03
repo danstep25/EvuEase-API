@@ -12,6 +12,7 @@ public class GradeRosterConfiguration : IEntityTypeConfiguration<GradeRoster>
 
         builder.HasKey(gr => gr.id);
         builder.Property(gr => gr.id).HasColumnName("id").ValueGeneratedOnAdd();
+        builder.Property(gr => gr.status).HasColumnName("status").IsRequired().HasDefaultValue(true);
         builder.Property(gr => gr.created_at).HasColumnName("created_at");
         builder.Property(gr => gr.updated_at).HasColumnName("updated_at");
     }

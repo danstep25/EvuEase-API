@@ -19,14 +19,12 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     {
         var query = GetAll();
 
-        // Apply search filter using SearchTerm and SearchKey from FilterBaseDto
         if (!string.IsNullOrWhiteSpace(userRequest.SearchTerm))
         {
             var searchTerm = userRequest.SearchTerm.ToLower();
 
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                // If no SearchKey specified, search across all fields
                 query = query.Where(u => 
                     u.name.ToLower().Contains(searchTerm) ||
                     u.email.ToLower().Contains(searchTerm) ||
@@ -35,7 +33,6 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             }
             else
             {
-                // Search in specific field based on SearchKey
                 query = searchTerm switch
                 {
                     "name" => query.Where(u => u.name.ToLower().Contains(searchTerm)),
@@ -109,7 +106,6 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         var totalUsers = await query.CountAsync();
         var activeUsers = await query.CountAsync(u => u.status == true);
         
-        // Get role descriptions from enum
         var adminRole = Role.Admin.GetDescription();
         var evaluatorRole = Role.Evaluator.GetDescription();
         var registrarRole = Role.Registrar.GetDescription();

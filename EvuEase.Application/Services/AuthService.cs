@@ -109,7 +109,7 @@ public class AuthService : IAuthService
             new Claim("UserId", user.id.ToString()),
             new Claim("Email", user.email),
             new Claim("UserName", user.name),
-            new Claim("Role", user.role),
+            new Claim("Role", NormalizeRole(user.role)),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -122,6 +122,22 @@ public class AuthService : IAuthService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static string NormalizeRole(string role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return string.Empty;
+        }
+
+        return role.Trim() switch
+        {
+            var value when value.Equals("admin", StringComparison.OrdinalIgnoreCase) => "Admin",
+            var value when value.Equals("registrar", StringComparison.OrdinalIgnoreCase) => "Registrar",
+            var value when value.Equals("evaluator", StringComparison.OrdinalIgnoreCase) => "Evaluator",
+            _ => role.Trim()
+        };
     }
 
     private string HashPassword(string password)
@@ -137,7 +153,6 @@ public class AuthService : IAuthService
         }
         catch
         {
-            // Handle legacy password hashes if needed
             return false;
         }
     }

@@ -13,7 +13,9 @@
           "BCrypt.Net-Next": "4.0.3",
           "EvuEase.Domain": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.1",
-          "System.IdentityModel.Tokens.Jwt": "8.2.1"
+          "PdfPig": "0.1.9",
+          "System.IdentityModel.Tokens.Jwt": "8.2.1",
+          "Tesseract": "5.2.0"
         },
         "runtime": {
           "EvuEase.Application.dll": {}
@@ -121,6 +123,38 @@
           }
         }
       },
+      "PdfPig/0.1.9": {
+        "runtime": {
+          "lib/net8.0/UglyToad.PdfPig.Core.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.DocumentLayoutAnalysis.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.Fonts.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.Package.dll": {
+            "assemblyVersion": "0.1.8.0",
+            "fileVersion": "0.1.8.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.Tokenization.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.Tokens.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          },
+          "lib/net8.0/UglyToad.PdfPig.dll": {
+            "assemblyVersion": "0.1.9.0",
+            "fileVersion": "0.1.9.0"
+          }
+        }
+      },
       "System.IdentityModel.Tokens.Jwt/8.2.1": {
         "dependencies": {
           "Microsoft.IdentityModel.JsonWebTokens": "8.2.1",
@@ -130,6 +164,14 @@
           "lib/net9.0/System.IdentityModel.Tokens.Jwt.dll": {
             "assemblyVersion": "8.2.1.0",
             "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "Tesseract/5.2.0": {
+        "runtime": {
+          "lib/netstandard2.0/Tesseract.dll": {
+            "assemblyVersion": "5.2.0.0",
+            "fileVersion": "5.2.0.0"
           }
         }
       },
@@ -219,12 +261,26 @@
       "path": "microsoft.identitymodel.tokens/8.2.1",
       "hashPath": "microsoft.identitymodel.tokens.8.2.1.nupkg.sha512"
     },
+    "PdfPig/0.1.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VU27oq5O0rpD+zWiD639xXkSHtsNXqbPpYV0pzYg9VPhDibH1cq1i67f9DuW2WnzDVEti0HipLcZxDhdayIzGg==",
+      "path": "pdfpig/0.1.9",
+      "hashPath": "pdfpig.0.1.9.nupkg.sha512"
+    },
     "System.IdentityModel.Tokens.Jwt/8.2.1": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-GVQmbjr2N8awFWPTWyThLxgKnFINObG1P+oX7vFrBY8um3V7V7Dh3wnxaGxNH6v6lSTeVQrY+SaUUBX9H3TPcw==",
       "path": "system.identitymodel.tokens.jwt/8.2.1",
       "hashPath": "system.identitymodel.tokens.jwt.8.2.1.nupkg.sha512"
+    },
+    "Tesseract/5.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YB7feJlrTWSXtK8+WaCcseGSPK/1r2d2FWeKGyndlrPwYClrzTlCoHD4/oQEUjKafmpkWlhTZZ7pxiRJYZgj6w==",
+      "path": "tesseract/5.2.0",
+      "hashPath": "tesseract.5.2.0.nupkg.sha512"
     },
     "EvuEase.Domain/1.0.0": {
       "type": "project",

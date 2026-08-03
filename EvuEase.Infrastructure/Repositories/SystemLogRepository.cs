@@ -19,7 +19,6 @@ public class SystemLogRepository : BaseRepository<SystemLog>, ISystemLogReposito
     {
         var query = GetAll();
 
-        // Apply search filter using SearchTerm from FilterBaseDto
         if (!string.IsNullOrWhiteSpace(systemLogRequest.SearchTerm))
         {
             var searchTerm = systemLogRequest.SearchTerm.ToLower();
@@ -49,17 +48,14 @@ public class SystemLogRepository : BaseRepository<SystemLog>, ISystemLogReposito
 
         if (!string.IsNullOrWhiteSpace(systemLogRequest.Module))
         {
-            // Use helper to get matching module description
             var matchedDescription = ModuleHelper.GetMatchingModuleDescription(systemLogRequest.Module);
 
             if (matchedDescription != null)
             {
-                // Filter by exact match with the enum description
                 query = query.Where(log => log.module.ToLower() == matchedDescription.ToLower());
             }
             else
             {
-                // If no exact match, do a contains search as fallback
                 query = query.Where(log => log.module.ToLower().Contains(systemLogRequest.Module.ToLower()));
             }
         }

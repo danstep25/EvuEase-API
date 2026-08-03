@@ -9,14 +9,36 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        // AutoMapper
-        services.AddAutoMapper(typeof(UserMappingProfile), typeof(SystemLogMappingProfile));
-
-        //Services
+        services.AddAutoMapper(
+            typeof(UserMappingProfile),
+            typeof(SystemLogMappingProfile),
+            typeof(ProgramMappingProfile),
+            typeof(SyTermMappingProfile),
+            typeof(CurriculaMappingProfile),
+            typeof(StudentMappingProfile),
+            typeof(StudentCurriculumHistoryMappingProfile));
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ISystemLogService, SystemLogService>();
         services.AddScoped<ILookupService, LookupService>();
+        services.AddScoped<IProgramService, ProgramService>();
+        services.AddScoped<ISyTermService, SyTermService>();
+        services.AddScoped<ICurriculaService, CurriculaService>();
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<ITuitionFeeService, TuitionFeeService>();
+        services.AddScoped<IOtherSchoolFeeService, OtherSchoolFeeService>();
+        services.AddScoped<IMiscellaneousFeeService, MiscellaneousFeeService>();
+        services.AddScoped<IDownpaymentService, DownpaymentService>();
+        services.AddScoped<IPaymentSchemeService, PaymentSchemeService>();
+        services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IStudentPortalService, StudentPortalService>();
+        services.AddScoped<IStudentCurriculumAssignmentService, StudentCurriculumAssignmentService>();
+        services.AddScoped<IClassAssignmentService, ClassAssignmentService>();
+        services.AddScoped<IClassRosterService, ClassRosterService>();
+        services.AddScoped<ICreditRequestService, CreditRequestService>();
+        services.AddScoped<IEvaluationAuditService, EvaluationAuditService>();
+        services.AddScoped<IArchiveService, ArchiveService>();
+        services.AddScoped<IAnalyticsService, AnalyticsService>();
 
         return services;
     }

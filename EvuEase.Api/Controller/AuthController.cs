@@ -15,6 +15,7 @@ public class AuthController : BaseController
         _authService = authService;
     }
 
+    [AllowAnonymous]
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -33,6 +34,7 @@ public class AuthController : BaseController
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {

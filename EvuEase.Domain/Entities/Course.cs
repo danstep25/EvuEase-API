@@ -3,14 +3,94 @@ namespace EvuEase.Domain.Entities;
 public class Course : BaseEntity
 {
     public string course_code { get; private set; } = string.Empty;
-    public int curriculum_id { get; private set; }
-    public int program_id { get; private set; }
+    public long curriculum_id { get; private set; }
+    public long program_id { get; private set; }
     public string course_title { get; private set; } = string.Empty;
     public int course_lec_units { get; private set; }
     public int course_lab_units { get; private set; }
     public int course_total_units { get; private set; }
     public string course_yearlevel { get; private set; } = string.Empty;
     public string course_semester { get; private set; } = string.Empty;
+    public string? course_component { get; private set; }
+    public string? prerequisites { get; private set; }
+    public string? description { get; private set; }
     public int course_has_prerequities { get; private set; }
-}
+    public bool is_elective_slot { get; private set; }
+    public bool is_elective_option { get; private set; }
 
+    private Course() { }
+
+    public static Course Create(
+        string courseCode,
+        long curriculumId,
+        long programId,
+        string courseTitle,
+        int courseTotalUnits,
+        string courseYearLevel,
+        string courseSemester,
+        string? courseComponent = null,
+        string? prerequisites = null,
+        string? description = null,
+        int courseLecUnits = 0,
+        int courseLabUnits = 0,
+        bool isElectiveSlot = false,
+        bool isElectiveOption = false)
+    {
+        var course = new Course();
+        var type = typeof(Course);
+        
+        type.GetProperty(nameof(course_code))?.SetValue(course, courseCode);
+        type.GetProperty(nameof(curriculum_id))?.SetValue(course, curriculumId);
+        type.GetProperty(nameof(program_id))?.SetValue(course, programId);
+        type.GetProperty(nameof(course_title))?.SetValue(course, courseTitle);
+        type.GetProperty(nameof(course_lec_units))?.SetValue(course, courseLecUnits);
+        type.GetProperty(nameof(course_lab_units))?.SetValue(course, courseLabUnits);
+        type.GetProperty(nameof(course_total_units))?.SetValue(course, courseTotalUnits);
+        type.GetProperty(nameof(course_yearlevel))?.SetValue(course, courseYearLevel);
+        type.GetProperty(nameof(course_semester))?.SetValue(course, courseSemester);
+        type.GetProperty(nameof(course_component))?.SetValue(course, courseComponent);
+        type.GetProperty(nameof(prerequisites))?.SetValue(course, prerequisites);
+        type.GetProperty(nameof(description))?.SetValue(course, description);
+        type.GetProperty(nameof(course_has_prerequities))?.SetValue(course, string.IsNullOrWhiteSpace(prerequisites) ? 0 : 1);
+        type.GetProperty(nameof(is_elective_slot))?.SetValue(course, isElectiveSlot);
+        type.GetProperty(nameof(is_elective_option))?.SetValue(course, isElectiveOption && !isElectiveSlot);
+        type.GetProperty(nameof(status))?.SetValue(course, true);
+        type.GetProperty(nameof(created_at))?.SetValue(course, DateTime.Now);
+        
+        return course;
+    }
+
+    public void Update(
+        long curriculumId,
+        long programId,
+        string courseTitle,
+        int courseTotalUnits,
+        string courseYearLevel,
+        string courseSemester,
+        string? courseComponent = null,
+        string? prerequisites = null,
+        string? description = null,
+        int courseLecUnits = 0,
+        int courseLabUnits = 0,
+        bool isElectiveSlot = false,
+        bool isElectiveOption = false)
+    {
+        var type = typeof(Course);
+
+        type.GetProperty(nameof(curriculum_id))?.SetValue(this, curriculumId);
+        type.GetProperty(nameof(program_id))?.SetValue(this, programId);
+        type.GetProperty(nameof(course_title))?.SetValue(this, courseTitle);
+        type.GetProperty(nameof(course_lec_units))?.SetValue(this, courseLecUnits);
+        type.GetProperty(nameof(course_lab_units))?.SetValue(this, courseLabUnits);
+        type.GetProperty(nameof(course_total_units))?.SetValue(this, courseTotalUnits);
+        type.GetProperty(nameof(course_yearlevel))?.SetValue(this, courseYearLevel);
+        type.GetProperty(nameof(course_semester))?.SetValue(this, courseSemester);
+        type.GetProperty(nameof(course_component))?.SetValue(this, courseComponent);
+        type.GetProperty(nameof(prerequisites))?.SetValue(this, prerequisites);
+        type.GetProperty(nameof(description))?.SetValue(this, description);
+        type.GetProperty(nameof(course_has_prerequities))?.SetValue(this, string.IsNullOrWhiteSpace(prerequisites) ? 0 : 1);
+        type.GetProperty(nameof(is_elective_slot))?.SetValue(this, isElectiveSlot);
+        type.GetProperty(nameof(is_elective_option))?.SetValue(this, isElectiveOption && !isElectiveSlot);
+        type.GetProperty(nameof(updated_at))?.SetValue(this, DateTime.Now);
+    }
+}

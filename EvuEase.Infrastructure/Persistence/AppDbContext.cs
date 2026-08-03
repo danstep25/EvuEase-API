@@ -8,7 +8,6 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
-    // System tables
     public DbSet<Cache> Cache { get; set; }
     public DbSet<CacheLock> CacheLocks { get; set; }
     public DbSet<FailedJob> FailedJobs { get; set; }
@@ -19,22 +18,30 @@ public class AppDbContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<SystemLog> SystemLogs { get; set; }
     
-    // Domain tables
     public DbSet<ClassRoster> ClassRosters { get; set; }
     public DbSet<Curricula> Curricula { get; set; }
     public DbSet<DpPercentage> DpPercentages { get; set; }
+    public DbSet<PaymentScheme> PaymentSchemes { get; set; }
+    public DbSet<PaymentSchemeInstallment> PaymentSchemeInstallments { get; set; }
     public DbSet<GradeRoster> GradeRosters { get; set; }
     public DbSet<MiscellaneousFee> MiscellaneousFees { get; set; }
     public DbSet<OtherSchoolFee> OtherSchoolFees { get; set; }
     public DbSet<Student> Students { get; set; }
+    public DbSet<StudentPortalPasswordResetRequest> StudentPortalPasswordResetRequests { get; set; }
+    public DbSet<StudentCurriculumHistory> StudentCurriculumHistories { get; set; }
     public DbSet<TuitionFee> TuitionFees { get; set; }
     
-    // Academic tables
     public DbSet<Program> Programs { get; set; }
     public DbSet<Course> Courses { get; set; }
+    public DbSet<GradingSchemeBasis> GradingSchemeBases { get; set; }
+    public DbSet<GradeScaleRow> GradeScaleRows { get; set; }
+    public DbSet<FacultyClass> FacultyClasses { get; set; }
+    public DbSet<FacultyClassEnrollment> FacultyClassEnrollments { get; set; }
+    public DbSet<CreditRequest> CreditRequests { get; set; }
+    public DbSet<CreditRequestLine> CreditRequestLines { get; set; }
+    public DbSet<SubjectEvaluationAudit> SubjectEvaluationAudits { get; set; }
     public DbSet<SyTerm> SyTerms { get; set; }
     
-    // User table
     public DbSet<User> Users { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +49,18 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clr = entityType.ClrType;
+            if (!typeof(BaseEntity).IsAssignableFrom(clr) || clr == typeof(BaseEntity) || entityType.IsOwned())
+            {
+                continue;
+            }
+
+            modelBuilder.Entity(clr).Property(nameof(BaseEntity.deleted_at)).HasColumnName("deleted_at");
+            modelBuilder.Entity(clr).Property(nameof(BaseEntity.deleted_by)).HasColumnName("deleted_by").HasMaxLength(255);
+        }
     }
 }
 

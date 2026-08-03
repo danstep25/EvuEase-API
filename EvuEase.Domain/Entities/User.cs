@@ -13,10 +13,8 @@ public class User : BaseEntity
     public string role { get; private set; } = string.Empty;
     public bool status { get; private set; }
 
-    // Private constructor for EF Core
     private User() { }
 
-    // Factory method for creating new users
     public static User Create(string name, string email, string hashedPassword, Role role = Role.Evaluator, Status status = Status.ACTIVE)
     {
         var user = new User();
